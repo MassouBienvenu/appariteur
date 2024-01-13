@@ -49,7 +49,7 @@ class UserData {
     datenais: json['datenais'] as String?,
     lieunais: json['lieunais'] as String?,
     rue: json['rue'] as String?,
-    codepostal: json['codepostal'] as String?,
+    codepostal: json['codepostal'] as String,
     ville: json['ville'] as String?,
     pays: json['pays'] as String?,
     niveau: json['niveau'] as String?,

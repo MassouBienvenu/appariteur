@@ -143,6 +143,7 @@ class AuthApi {
   }
 
   static Future<bool?> updateProfile(UserData userData) async {
+    print("API updateProfile: Début de l'appel API");
     final token = await getToken();
     if (token == null) {
       print('Error: Token is null');
@@ -191,7 +192,7 @@ class AuthApi {
           return true;
         }
       }
-      // Handle error or unsuccessful update
+
       print('Failed to update profile: ${response.body}');
       return false;
     } catch (e) {

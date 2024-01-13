@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../data/apihelper.dart';
 import '../../models/planning.dart';
-
+import 'package:http/http.dart' as http;
 
 class CalendarPage extends StatefulWidget {
   @override
@@ -159,7 +161,40 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     // Handle failed connection or response
   }
+  static Future<bool> cancelMission(String prestationId) async {
+    final token = await AuthApi.getToken();
+    if (token == null) {
+      print('Error: Token is null');
+      return false;
+    }
+    try {
+      final url = 'https://appariteur.com/api/users/mission.php?mission_id=$prestationId';
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          print('Mission annulée avec succès');
+          return true;
+        } else {
+          print('Erreur lors de l\'annulation de la mission : ${responseData['message']}');
+          return false;
+        }
+      } else {
+        print('Erreur HTTP lors de l\'annulation de la mission. Code: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Erreur lors de la connexion à l\'API pour annuler la mission : $e');
+      return false;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -342,6 +377,13 @@ class _CalendarPageState extends State<CalendarPage> {
               Text('Heure début: ${planning.heureDebut}'),
               Text('Heure fin: ${planning.heureFin}'),
               Text('Durée: ${planning.duree}'),
+              if (planning.btnCancel)
+                IconButton(
+                  icon: Icon(Icons.cancel, color: Colors.red),
+                  onPressed: () {
+                    cancelMission(planning.prestationId);
+                  },
+                ),
             ],
           ),
         );
