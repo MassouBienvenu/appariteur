@@ -10,11 +10,110 @@ class BodyM extends StatefulWidget {
 }
 
 class _BodyMState extends State<BodyM> {
+  DateTime now = DateTime.now();
+
   DateTime? _startDate = DateTime.now();
   DateTime? _endDate = DateTime.now();
   List<Mission>? _missions = [];
   String? _totalHours = '';
+  Widget _buildDateButton(BuildContext context, bool isStart, String label, DateTime? date) {
+    double _w = MediaQuery.of(context).size.width;
+    return Expanded(
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: Colors.blueAccent,
+          onPrimary: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: _w/40),
+        ),
+        onPressed: () => _pickDate(context, isStart),
+        child: Text('$label${DateFormat('dd/MM/yyyy', 'fr_FR').format(date!)}'),
+      ),
+    );
+  }
+  Widget _buildActionButton(BuildContext context, Function onPressed, String label, Color color) {
+    double _w = MediaQuery.of(context).size.width;
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: color,
+        padding: EdgeInsets.symmetric(vertical: _w/40),
+      ),
+      onPressed: () => onPressed(),
+      child: Text(label, style: TextStyle(color: Colors.white)),
+    );
+  }
+  String formatTotalHours(String totalHours) {
 
+    List<String> parts = totalHours.split(':');
+
+    String hours = parts[0].padLeft(2, '0');
+    String minutes = parts[1].padLeft(2, '0');
+
+    return '${hours}h ${minutes}';
+  }
+
+// Utilisez cette fonction pour formater _totalHours avant de l'afficher
+// Par exemple :
+// _totalHours = formatTotalHours(result.totalHours);
+
+  Widget _buildTotalHoursDisplay() {
+    double _w = MediaQuery.of(context).size.width;
+    return _totalHours != null && _totalHours!.isNotEmpty
+        ? Padding(
+      padding: EdgeInsets.symmetric(vertical: _w / 40, horizontal: _w / 40),
+      child: Text(
+        'Heures Totales: ${formatTotalHours(_totalHours!)}',
+        style: TextStyle(
+          fontSize: _w / 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.teal,
+        ),
+      ),
+    )
+        : SizedBox();
+  }
+
+  Widget _buildMissionsList() {
+    return _missions != null && _missions!.isNotEmpty
+        ? ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _missions!.length,
+      itemBuilder: (context, index) {
+        final mission = _missions![index];
+        return Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListTile(
+            leading: Icon(Icons.assignment_turned_in, color: Colors.green),
+            title: Text(mission.etabli, style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(DateFormat('dd/MM/yyyy').format(mission.date)),
+                Text(mission.moment, style: TextStyle(color: Colors.black54)),
+              ],
+            ),
+            trailing: Text(
+              mission.duree,
+              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+            ),
+          ),
+        );
+      },
+    )
+        : Center(
+      child: Text(
+        _totalHours != null && _totalHours!.isNotEmpty
+            ? 'Aucune mission à afficher'
+            : 'Sélectionnez une période pour chercher les missions',
+        style: TextStyle(
+          fontSize: 18,
+          fontStyle: FontStyle.italic,
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
   Future<void> _pickDate(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -56,92 +155,26 @@ class _BodyMState extends State<BodyM> {
 
 
   Widget build(BuildContext context) {
+    double _w = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(_w / 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blueAccent,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () => _pickDate(context, true),
-                    child: Text('Date de début: ${DateFormat('yyyy-MM-dd', 'fr_FR').format(_startDate!)}'),
-                  ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blueAccent,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () => _pickDate(context, false),
-                    child: Text('Date de fin: ${DateFormat('yyyy-MM-dd', 'fr_FR').format(_endDate!)}'),
-                  ),
-                ),
+                _buildDateButton(context, true, 'Date de début: ', _startDate),
+                SizedBox(width: _w / 30),
+                _buildDateButton(context, false, 'Date de fin: ', _endDate),
               ],
             ),
-            SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Colors.green,
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-              onPressed: _fetchMissions,
-              child: Text('Chercher les missions', style: TextStyle(color: Colors.white)),
-            ),
-            SizedBox(height: 12),
-            _totalHours != null && _totalHours!.isNotEmpty
-                ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-              child: Text(
-                'Heures Totales: $_totalHours',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.redAccent,
-                ),
-              ),
-            )
-                : SizedBox(),
-            _missions != null && _missions!.isNotEmpty
-                ? ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: _missions!.length,
-              itemBuilder: (context, index) {
-                final mission = _missions![index];
-                return Card(
-                  child: ListTile(
-                    leading: Icon(Icons.assignment, color: Theme.of(context).primaryColor),
-                    title: Text(mission.date as String),
-                    subtitle: Text(mission.etabli),
-                    trailing: Text(mission.duree),
-                  ),
-                );
-              },
-            )
-                : (_totalHours != null && _totalHours!.isNotEmpty)
-                ? Center(
-              child: Text(
-                'Aucune mission à afficher',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.redAccent,
-                ),
-              ),
-            )
-                : SizedBox(),
+            SizedBox(height: _w / 30),
+            _buildActionButton(context, _fetchMissions, 'Chercher les missions', Colors.green),
+            SizedBox(height: _w / 30),
+            _buildTotalHoursDisplay(),
+            _buildMissionsList(),
           ],
         ),
       ),

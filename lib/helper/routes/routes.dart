@@ -15,7 +15,7 @@ class AuthMiddleware extends GetMiddleware {
   @override
   String token = '';
   Future<String> retrieveToken() async {
-    final user = await AuthApi.getLoggedUserData();
+    final user = await AuthApi.getLocalUserData();
     if (user != null) {
       token = user.token!;
 

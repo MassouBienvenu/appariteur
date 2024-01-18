@@ -21,15 +21,74 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Planning>? _plannings;
 
   // User Info for displaying hours
-  var heure_Year = "00:00:00";
-  var heure_Month = "00:00:00";
-  var heure_Week = "00:00:00";
+  var heure_Year = "00:00";
+  var heure_Month = "00:00";
+  var heure_Week = "00:00";
 
   @override
   void initState() {
     super.initState();
     ShowUserInfo();
     _fetchPlannings();
+  }
+  void _showEditForm(Planning planning) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+      String salle = planning.salle;
+      String heureDebut = planning.heureDebut;
+      String heureFin = planning.heureFin;
+
+      return AlertDialog(
+          title: Text('Modifier la mission'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                TextFormField(
+                  initialValue: salle,
+                  onChanged: (value) => salle = value,
+                  decoration: InputDecoration(labelText: 'Salle'),
+                ),
+                TextFormField(
+                  initialValue: heureDebut,
+                  onChanged: (value) => heureDebut = value,
+                  decoration: InputDecoration(labelText: 'Heure de début'),
+                ),
+                TextFormField(
+                  initialValue: heureFin,
+                  onChanged: (value) => heureFin = value,
+                  decoration: InputDecoration(labelText: 'Heure de fin'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+      TextButton(
+      child: Text('Annuler'),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+            TextButton(
+              child: Text('Soumettre'),
+              onPressed: () {
+                AuthApi.updatePlanning(planning, salle, heureDebut, heureFin)
+                    .then((success) {
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Votre demande de mise à jour a été effectuée.')));
+                    print('Mise à jour réussie');
+                  } else {
+                    print('Échec de la mise à jour');
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Votre demande de mise à jour a été échoué.')));
+                  }
+                  Navigator.of(context).pop();
+                });
+              },
+            ),
+          ],
+      );
+        },
+    );
   }
 
   void _fetchPlannings() async {
@@ -59,20 +118,23 @@ class _CalendarPageState extends State<CalendarPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title:Center(child: Row(children:[
-            SizedBox(width: 20),
-              Icon(Icons.assignment, color: Color(0xFF2A4494)),
-            SizedBox(width: 10),
-            Text("Missions",textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2A4494), // Adjust the color to fit your app theme
-              ),
+          title: Center(
+            child: Row(
+              children: [
+                SizedBox(width: 20),
+                Icon(Icons.assignment, color: Color(0xFF2A4494)),
+                SizedBox(width: 10),
+                Text(
+                  "Missions",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2A4494), // Adjust the color to fit your app theme
+                  ),
+                ),
+              ],
             ),
-          ]
           ),
-),
-
           content: Container(
             width: double.maxFinite, // To take full width of the dialog
             child: ListView.builder(
@@ -103,7 +165,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             Icon(Icons.meeting_room_rounded, color:Color(0xFF2A4494)),
                             SizedBox(width: 8),
                             Expanded(
-                              child: Text("No "+plannings[index].salle),
+                              child: Text("N\u00b0 "+plannings[index].salle),
                             ),
                           ],
                         ),
@@ -127,8 +189,18 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8)
-                      ],
+                        SizedBox(height: 8),
+
+
+                        // Add a "Modifier" button
+                        ElevatedButton(
+                          child: Text('Modifier'),
+                          onPressed: () {
+                            _showEditForm(plannings[index]);
+                          },
+                        ),
+
+                    ],
                     ),
                   ),
                 );
@@ -197,53 +269,54 @@ class _CalendarPageState extends State<CalendarPage> {
   }
   @override
   Widget build(BuildContext context) {
+    double _w = MediaQuery.of(context).size.width;
+    double _h = MediaQuery.of(context).size.height;
+
     return MaterialApp(
         localizationsDelegates: [
-
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
         ],
         supportedLocales: [
-          const Locale('fr', 'FR'),
+          const Locale('fr', 'FR'), // French
         ],
-  debugShowCheckedModeBanner: false,
-  home :Scaffold(
-
-      backgroundColor: Colors.grey[200], // Light grey color for the background
-      body: ListView(
-        children: [
-          const SizedBox(height: 30.0),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: const Text(
-              "Planning des missions du mois",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-              ),
-            ),
-          ),
-          const SizedBox(height: 30.0),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white, // White color for the calendar box
-              borderRadius: BorderRadius.circular(20.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: Colors.grey[200],
+          body: ListView(
+            children: [
+              SizedBox(height: _h * 0.03),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(_w / 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(_w / 20),
                 ),
-              ],
-            ),
-            child: TableCalendar(
+                child: Text(
+                  "Planning des missions du mois",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: _w / 24,
+                  ),
+                ),
+              ),
+              SizedBox(height: _h * 0.03),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(_w / 20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: TableCalendar(
               availableCalendarFormats: const {
                 CalendarFormat.month: 'Month', // Only allow the month view
               },
@@ -254,45 +327,48 @@ class _CalendarPageState extends State<CalendarPage> {
               calendarFormat: _calendarFormat,
               eventLoader: _getPlanningsForDay,
               onDaySelected: _onDaySelected,
+              onDayLongPressed: (selectedDay, focusedDay) {
+                _showMissionDetails(selectedDay);
+              },
             ),
           ),
-          const SizedBox(height: 30.0),
+              SizedBox(height: _h * 0.03),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(_w / 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
+              borderRadius: BorderRadius.circular(_w / 20),
             ),
-            child: const Text(
+            child: Text(
               "Nombres d'heures de prestation",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 18.0,
+                fontSize:  _w / 24,
               ),
             ),
           ),
 
-          const SizedBox(height: 30.0),
-          _buildHourContainer("Cette semaine", heure_Week),
+              SizedBox(height: _h * 0.03),
+          _buildHourContainer("Cette semaine", heure_Week, _w, _h),
           const SizedBox(height: 20.0),
-          _buildHourContainer("Ce mois", heure_Month),
+          _buildHourContainer("Ce mois", heure_Month,  _w, _h),
           const SizedBox(height: 20.0),
-          _buildHourContainer("Cette année", heure_Year),
+          _buildHourContainer("Cette année", heure_Year,  _w, _h),
           const SizedBox(height: 30.0),
         ],
       ),
     ));
   }
 
-  Widget _buildHourContainer(String title, String hours) {
+  Widget _buildHourContainer(String title, String hours, double _w, double _h) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20.0),
+      padding: EdgeInsets.all(_w / 20),
       decoration: BoxDecoration(
-        color: Colors.white, // White color for the hour box
-        borderRadius: BorderRadius.circular(20.0),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(_w / 20),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
@@ -307,14 +383,14 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           Image.asset(
             "assets/images/mission.png",
-            height: 50,
+            height: _h * 0.06,
           ),
           Container(
-            width: 140.0,
-            padding: const EdgeInsets.all(10.0),
+            width: _w * 0.35,
+            padding: EdgeInsets.all(_w / 20),
             decoration: BoxDecoration(
-              color: Colors.white, // White color for the inner hour box
-              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(_w / 20),
               boxShadow: [
                 BoxShadow(
                   color: Colors.redAccent.withOpacity(0.5),
@@ -328,17 +404,17 @@ class _CalendarPageState extends State<CalendarPage> {
               children: [
                 Text(
                   hours,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
-                    fontSize: 18.0,
+                    fontSize: _w / 24,
                   ),
                 ),
-                const SizedBox(height: 5.0),
+                SizedBox(height: _h * 0.005),
                 Text(
                   title,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 15.0,
+                    fontSize: _w / 28,
                   ),
                 ),
               ],

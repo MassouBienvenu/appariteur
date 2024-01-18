@@ -143,35 +143,41 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp( debugShowCheckedModeBanner: false, localizationsDelegates: [
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-    ],
-        supportedLocales: [
-          const Locale('fr', 'FR'), // French
-        ],home: Scaffold(
+    double _w = MediaQuery.of(context).size.width;
+    double _h = MediaQuery.of(context).size.height;
+
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('fr', 'FR'), // French
+        ],
+        home: Scaffold(
           backgroundColor: Colors.grey[200],
           body: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 30.0),
+                SizedBox(height: _h * 0.03),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(_w / 20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(_w / 20),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Choisir une plage de dates et indiquer la disponibilité.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 18.0,
+                      fontSize: _w / 24,
                     ),
                   ),
                 ),
-                const SizedBox(height: 25.0),
+                SizedBox(height: _h * 0.03),
                 Container(
                   child: Center(
                     child: Column(
@@ -179,7 +185,7 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(_w / 20),
                           ),
                           child: TableCalendar(
                             availableCalendarFormats: const {
@@ -198,7 +204,7 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
                             },
                           ),
                         ),
-                        SizedBox(height: 15.0),
+                        SizedBox(height: _h * 0.02),
                         ElevatedButton(
                           onPressed: _openForm,
                           child: const Text('Renseigner les disponibilités'),
@@ -207,7 +213,7 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 15.0),
+                SizedBox(height: _h * 0.02),
               ],
             ),
           ),
@@ -215,6 +221,8 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
   }
 
   void _openForm() async {
+    double _w = MediaQuery.of(context).size.width;
+
     if (_selectedDates.isNotEmpty) {
       showModalBottomSheet(
         context: context,
@@ -222,7 +230,7 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
           return StatefulBuilder(
             builder: (BuildContext context, StateSetter setModalState) {
               return Container(
-                padding: EdgeInsets.all(20),
+                padding: EdgeInsets.all(_w / 20),
                 child: Wrap(
                   children: <Widget>[
                     _buildToggle("Matinée", isMorningSelected, 'morning', setModalState),

@@ -14,15 +14,16 @@ class ProfileChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double _w = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding:  EdgeInsets.symmetric(vertical: _w / 40),
       child: Column(
         children: [
           Align(
             alignment: Alignment.center,
             child: const ProfileImg(),
           ),
-          const SizedBox(height: 20),
+           SizedBox(height: _w /20),
           FirsContentPro(
             text: "Mon Compte",
             icon: "assets/icons/User Icon.svg",

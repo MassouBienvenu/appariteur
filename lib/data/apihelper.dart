@@ -1,6 +1,9 @@
-// ignore_for_file: non_constant_identifier_names
+
 
 import 'dart:convert';
+
+
+import 'dart:io' as io;
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -141,67 +144,57 @@ class AuthApi {
     }
     return null;
   }
-
-  static Future<bool?> updateProfile(UserData userData) async {
+  static Future<bool?> updateProfile(UserData userData, io.File? imageFile) async {
     print("API updateProfile: Début de l'appel API");
-    final token = await getToken();
+    final token = await getToken();  // Implement getToken() according to your auth logic
     if (token == null) {
       print('Error: Token is null');
       return null;
     }
     const url = 'https://appariteur.com/api/users/profile.php';
-    try {
-      final token = await getToken();
-      if (token == null) {
-        print('Error: Token is null');
-        return null;
-      }
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Assuming tokenVar is your authToken
-        },
-        body: jsonEncode({
-          'userId': userData.userId,
-          'appariteurId': userData.appariteurId,
-          'name': userData.name,
-          'email': userData.email,
-          'tel': userData.tel,
-          'sexe': userData.sexe,
-          'image': userData.image,
-          'adresse': userData.adresse,
-          'datenais': userData.datenais,
-          'lieunais': userData.lieunais,
-          'rue': userData.rue,
-          'codepostal': userData.codepostal,
-          'ville': userData.ville,
-          'pays': userData.pays,
-          'niveau': userData.niveau,
-          'user': userData.user,
 
-        }),
-      );
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url))
+        ..headers['Authorization'] = 'Bearer $token'
+        ..fields['userId']=userData.userId!
+        ..fields['appariteurId']=userData.appariteurId!
+        ..fields['name'] = userData.name!
+        ..fields['email'] = userData.email!
+        ..fields['tel'] = userData.tel!
+        ..fields['sexe'] = userData.sexe!
+        ..fields['adresse'] = userData.adresse!
+        ..fields['datenais'] = userData.datenais!
+        ..fields['lieunais'] = userData.lieunais!
+        ..fields['codepostal'] = userData.codepostal!
+        ..fields['pays'] = userData.pays!;
+
+      if (imageFile != null && await imageFile.exists()) {
+        request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+      } else {
+        print('Image file does not exist or is not selected');
+      }
+
+      var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      print('Response body: $responseBody');
 
       if (response.statusCode == 200) {
-        // Check for success response and act accordingly
-        var responseData = json.decode(response.body);
+        final responseData = json.decode(responseBody);
+        // Check the response structure and handle accordingly
         if (responseData['success']) {
-          // Handle successful profile update
           print('Profile updated successfully!');
           return true;
+        } else {
+          print('Server response: ${responseData['message'] ?? 'No specific error message.'}');
         }
+      } else {
+        print('Failed to update profile, status code: ${response.statusCode}');
       }
-
-      print('Failed to update profile: ${response.body}');
       return false;
     } catch (e) {
       print('Error updating profile: $e');
       return false;
     }
-  }
-  static UserData? getLoggedUserData() {
-    return _loggedUserData;
   }
   static Future<UserInfo?> InfoUser() async {
     final token = await getToken();
@@ -246,7 +239,47 @@ class AuthApi {
     }
   }
 
+  static Future<bool?> uploadDocument(io.File? documentFile, String docType) async {
+    final token = await getToken(); // Implement this method to get the current user's token
+    if (token == null) {
+      print('Error: Token is null');
+      return null;
+    }
+    const url = 'https://appariteur.com/api/users/document.php';
 
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(url))
+        ..headers['Authorization'] = 'Bearer $token'
+        ..fields['doc_type'] = docType;
+
+      if (documentFile != null && await documentFile.exists()) {
+        request.files.add(await http.MultipartFile.fromPath('fileDoc', documentFile.path));
+      } else {
+        print('Document file does not exist or is not selected');
+        return null;
+      }
+
+      var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      print('Response body: $responseBody');
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(responseBody);
+        if (responseData['success']) {
+          print('Document uploaded successfully!');
+          return true;
+        } else {
+          print('Server response: ${responseData['message'] ?? 'No specific error message.'}');
+        }
+      } else {
+        print('Failed to upload document, status code: ${response.statusCode}');
+      }
+      return false;
+    } catch (e) {
+      print('Error uploading document: $e');
+      return false;
+    }
+  }
 
   static Future<List<UserDoc>?> getUserDocuments() async {
     try {
@@ -417,6 +450,63 @@ class AuthApi {
 
     return null;
   }
+
+
+
+  static Future<bool> updatePlanning(Planning planning, String salle, String heureDebut, String heureFin) async {
+  final token = await getToken();
+  if (token == null) {
+  print('Token is null');
+  return false;
+  }
+
+  const url = 'https://appariteur.com/api/users/planning.php';
+  Map<String, dynamic> requestBody = {
+
+  'updates':
+  {
+  'name_etabli': planning.nameEtabli,
+  'salle': salle,
+  'date_pres': planning.datePres,
+  'heure_debut': heureDebut,
+  'heure_fin': heureFin
+  }
+
+
+  };
+
+  String jsonBody = jsonEncode(requestBody);
+  print('Sending update object: $jsonBody');
+
+  try {
+  final response = await http.post(
+  Uri.parse(url),
+  headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer $token',
+  },
+  body: jsonBody,
+  );
+
+  print('Response status: ${response.statusCode}');
+  print('Response body: ${response.body}');
+
+  if (response.statusCode == 200) {
+  var responseData = jsonDecode(response.body);
+  print('Response data: $responseData');
+  return responseData['success'];
+  } else {
+  print('Failed to update planning: ${response.body}');
+  return false;
+  }
+  } catch (e) {
+  print('Error updating planning: $e');
+  return false;
+  }
+  }
+
+
+
   static Future<List<Contrat>?> getContrats() async {
     try {
       final token = await getToken();
@@ -473,39 +563,39 @@ class AuthApi {
     return null; // Gérer les erreurs comme vous le souhaitez
   }
 
-  static Future<void> sendDisponibilites(List<Map<String, dynamic>> disponibilites) async {
-    try {
-      final token = await getToken();
-      if (token == null) {
-        print('Error: Token is null');
-        return null;
-      }
-      const url = 'https://appariteur.com/api/users/disponibilites.php';
-      final Map<String, dynamic> requestBody = {'updates': disponibilites};
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(requestBody),
-      );
-
-      // Traitement de la réponse
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['success'] == true) {
-          print('Disponibilités ajoutées avec succès');
-        } else {
-          print('Erreur lors de l\'ajout des disponibilités');
+    static Future<void> sendDisponibilites(List<Map<String, dynamic>> disponibilites) async {
+      try {
+        final token = await getToken();
+        if (token == null) {
+          print('Error: Token is null');
+          return null;
         }
-      } else {
-        print('Failed to add disponibilites. Status code: ${response.statusCode}');
+        const url = 'https://appariteur.com/api/users/disponibilites.php';
+        final Map<String, dynamic> requestBody = {'updates': disponibilites};
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(requestBody),
+        );
+
+        // Traitement de la réponse
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          if (responseData['success'] == true) {
+            print('Disponibilités ajoutées avec succès');
+          } else {
+            print('Erreur lors de l\'ajout des disponibilités');
+          }
+        } else {
+          print('Failed to add disponibilites. Status code: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error sending disponibilites: $e');
       }
-    } catch (e) {
-      print('Error sending disponibilites: $e');
     }
-  }
   static Future<bool> cancelMission(String missionId) async {
     final token = await getToken();
     if (token == null) {
@@ -580,17 +670,7 @@ class AuthApi {
   }
 
 
-  static Future<void> logout() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.remove('token');
-      _loggedUserData = null;
-      tokenVar = null;
-      prefs.clear(); // Efface toutes les préférences partagées si nécessaire
-    } catch (e) {
-      print('Erreur lors de la déconnexion : $e');
-    }
-  }
+
   static Future<bool> deleteUserDocument(String docId) async {
     final token = await getToken();
     if (token == null) {
@@ -618,6 +698,17 @@ class AuthApi {
     } else {
       print('HTTP Error while deleting document. Status Code: ${response.statusCode}');
       return false;
+    }
+  }
+  static Future<void> logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('token');
+      _loggedUserData = null;
+      tokenVar = null;
+      prefs.clear();
+    } catch (e) {
+      print('Erreur lors de la déconnexion : $e');
     }
   }
 

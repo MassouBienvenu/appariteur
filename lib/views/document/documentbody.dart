@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appariteur/views/document/adddDocument.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -99,6 +100,10 @@ class _DocumentShildState extends State<DocumentShild> {
     double _w = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton( child: Icon(Icons.add), onPressed: (){Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>  DocumentUploadPage()),
+      );}),
       appBar: TopBarS(
         onNotificationPressed: () {
           Navigator.push(
@@ -155,8 +160,6 @@ class _DocumentShildState extends State<DocumentShild> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10),
-                            Text('Fichier: ${doc.docName}', style: Theme.of(context).textTheme.subtitle2),
                             SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,

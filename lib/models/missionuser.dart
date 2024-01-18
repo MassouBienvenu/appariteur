@@ -35,18 +35,18 @@ class MissionEffUserResult {
 }
 class Mission {
   DateTime date;
-  String reference;
   String etabli;
   String duree;
+  String moment;
 
-  Mission({required this.date, required this.reference, required this.etabli, required this.duree});
+  Mission({required this.date, required this.etabli, required this.duree,required this.moment});
 
   factory Mission.fromJson(Map<String, dynamic> json) {
     return Mission(
       date: DateTime.parse(json['date']),
-      reference: json['reference'],
       etabli: json['etabli'],
       duree: json['duree'],
+      moment: json['moment']
     );
   }
 }

@@ -15,6 +15,7 @@ class _PlaningViewerState extends State<PlaningViewer> {
   @override
   Widget build(BuildContext context) {
     double _w = MediaQuery.of(context).size.width;
+    double _h=MediaQuery.of(context).size.height;
     int itemCount = topNavBar
         .notificationCount; // Use the getter method to get the notification count
     print(itemCount);

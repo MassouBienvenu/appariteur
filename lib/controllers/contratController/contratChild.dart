@@ -9,7 +9,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../data/apihelper.dart';
 import '../../models/contrat.dart';
 
-
 class ContratChild extends StatefulWidget {
   @override
   _ContratChildState createState() => _ContratChildState();
@@ -41,6 +40,7 @@ class _ContratChildState extends State<ContratChild> {
   @override
   Widget build(BuildContext context) {
     double _w = MediaQuery.of(context).size.width;
+    double _h = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: isLoading
@@ -62,8 +62,8 @@ class _ContratChildState extends State<ContratChild> {
               child: SlideAnimation(
                 duration: const Duration(milliseconds: 2500),
                 curve: Curves.fastLinearToSlowEaseIn,
-                horizontalOffset: 30,
-                verticalOffset: 300.0,
+                horizontalOffset: _w * 0.075,
+                verticalOffset: _h * 0.375,
                 child: ContratItem(width: _w, contrat: contrat),
               ),
             );
@@ -106,6 +106,8 @@ class ContratItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double iconSize = width * 0.075;
+
     return FlipAnimation(
       duration: const Duration(milliseconds: 3000),
       curve: Curves.fastLinearToSlowEaseIn,
@@ -125,40 +127,46 @@ class ContratItem extends StatelessWidget {
               ),
             );
           },
-          child: Padding(
+          child:  Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.picture_as_pdf, color: Colors.redAccent),
-                    SizedBox(width: 10),
+                    Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: iconSize),
+                    SizedBox(width: width * 0.025),
                     Expanded(
-                      child: Text(contrat.typeContrat, style: Theme.of(context).textTheme.headline6),
+                      child: Text('${contrat!.typeContrat} ', style: Theme.of(context).textTheme.headline6),
                     ),
-                    Icon(Icons.check_circle, color: Colors.green)
+                    Icon(Icons.check_circle, color: Colors.green, size: iconSize)
                   ],
                 ),
-                SizedBox(height: 10),
-                Text('Date de début: ${contrat.dateEmbauche}', style: Theme.of(context).textTheme.subtitle2),
-                SizedBox(height: 5),
-                Text('Date de fin: ${contrat.dateFinContrat}', style: Theme.of(context).textTheme.subtitle2),
-                SizedBox(height: 5),
-                Text('Montant par heure: ${contrat.montantHeure}', style: Theme.of(context).textTheme.subtitle2),
-                SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    onPressed: () => downloadFile(
-                        'https://appariteur.com/admins/documents/${contrat.nameFichier}',
-                        '${contrat.nameFichier}.pdf'),
-                    icon: Icon(Icons.download, color: Colors.white),
-                    label: Text('Télécharger'),
-                    style: ElevatedButton.styleFrom(
-                      onPrimary: Theme.of(context).primaryColor,
+                SizedBox(height: width * 0.025),
+                Text('Valide jusqu\'au: ${contrat.dateFinContrat}', style: Theme.of(context).textTheme.subtitle2),
+                SizedBox(height: width * 0.05),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        downloadFile('https://appariteur.com/admins/documents/${contrat.nameFichier}', contrat.nameFichier);
+                      },
+                      icon: Icon(Icons.download, color: Theme.of(context).primaryColor),
+                      label: Text('Télécharger', style: Theme.of(context).textTheme.bodyText1),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: width * 0.02, horizontal: width * 0.04),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                      ),
                     ),
-                  ),
+                    Row(
+                      children: [
+                        Text('Voir ', style: Theme.of(context).textTheme.bodyText1),
+                        Icon(Icons.remove_red_eye, color: Theme.of(context).primaryColor),
+                      ],
+                    )
+                  ],
                 )
               ],
             ),

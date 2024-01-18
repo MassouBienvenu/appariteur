@@ -1,4 +1,4 @@
-class UserData {
+  class UserData {
   final String? userId;
   final String? appariteurId;
   final String? name;

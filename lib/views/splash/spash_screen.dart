@@ -1,8 +1,9 @@
 import 'package:appariteur/controllers/loginController/childlogin.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart'; // Ensure Google Fonts is imported
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class OnboardingScreen extends StatefulWidget {
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
@@ -16,13 +17,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return [
       _buildPage(
         imagePath: 'assets/images/splash 1.png',
-        text: 'Devenez rapidement et facilement surveillant!'
-            ' Et gagnez de l\'argent en travaillant avec nous!',
+        text: 'Devenez rapidement et facilement surveillant. Et gagnez de l\'argent en travaillant avec nous!',
       ),
       _buildPage(
         imagePath: 'assets/images/splash 2.png',
-        text: 'Suivez vos horaires de travail,'
-            ' Et décidez de quand vous travaillez!',
+        text: 'Suivez vos horaires de travail, Et décidez de quand vous travaillez.',
         showButton: true,
       ),
     ];
@@ -41,7 +40,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-
   Widget _buildPageIndicator(bool isCurrentPage) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -55,29 +53,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildPage({required String imagePath, required String text, bool showButton = false}) {
+    double _w = MediaQuery.of(context).size.width;
+    double _h = MediaQuery.of(context).size.height;
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(_w * 0.05),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(imagePath),
-          SizedBox(height: 20),
+          Image.asset(imagePath, width: _w * 0.8),
+          SizedBox(height: _h * 0.02),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.lato(fontSize: 18),
+            style: GoogleFonts.poppins(
+              fontSize: _w * 0.045,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
           if (showButton) ...[
-            SizedBox(height: 30),
+            SizedBox(height: _h * 0.04),
             ElevatedButton(
-              onPressed: () {
-                _onFinish();
-                Navigator.push(
-
-                    context, MaterialPageRoute(builder: (context) => SignInScreen()));;
-              },
-              child: Text('Commencer',style: TextStyle(color: Colors.white), ),
-              style: ElevatedButton.styleFrom(primary: Colors.blue),
+              onPressed: _onFinish,
+              child: Text(
+                'Commencer',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+                padding: EdgeInsets.symmetric(horizontal: _w * 0.1, vertical: _h * 0.02),
+              ),
             ),
           ]
         ],
@@ -103,7 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: _buildPageContent(),
           ),
           Positioned(
-            bottom: 20.0,
+            bottom: MediaQuery.of(context).size.height * 0.05,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List<Widget>.generate(

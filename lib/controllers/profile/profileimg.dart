@@ -31,7 +31,7 @@ class ProfileImg extends StatelessWidget {
         } else {
           // Afficher une image par défaut si aucune donnée n'est disponible
           return const CircleAvatar(
-            backgroundImage: AssetImage("assets/images/logo.jpg"),
+            backgroundImage: AssetImage("assets/images/logo.png"),
           );
         }
       },
