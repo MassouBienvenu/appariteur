@@ -18,7 +18,7 @@ class MissionListScreen extends StatelessWidget {
         title: Text('Liste des missions'),
       ),
       body: ListView.builder(
-        itemCount: plannings.length, // Utilisez la liste des plannings directement
+        itemCount: plannings.length,
         itemBuilder: (context, index) {
           final Planning planning = plannings[index];
 

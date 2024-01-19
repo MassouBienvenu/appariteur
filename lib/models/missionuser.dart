@@ -15,18 +15,19 @@ class MissionEffUser {
 class Result {
   bool success;
   List<Mission> data;
-  String totalHeure;
+  String? totalHeure;
 
-  Result({required this.success, required this.data, required this.totalHeure});
+  Result({required this.success, required this.data, this.totalHeure});
 
   factory Result.fromJson(Map<String, dynamic> json) {
     return Result(
       success: json['success'],
       data: List<Mission>.from(json['data'].map((x) => Mission.fromJson(x))),
-      totalHeure: json['total_heure'],
+      totalHeure: json['total_heure'] ?? '00:00',
     );
   }
 }
+
 class MissionEffUserResult {
   List<Mission>? missions;
   String? totalHours;

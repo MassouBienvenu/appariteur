@@ -314,14 +314,13 @@ class AuthApi {
 
   static Future<MissionEffUserResult?> getMissionsEffectuees(String dateStart, String dateEnd) async {
     const endpoint = 'https://appariteur.com/api/users/missioneffectuee.php';
+    try {
+      final token = await getToken();
+      if (token == null) {
+        print('Error: Token is null');
+        return null;
+      }
 
-    try { final token = await getToken();
-    if (token == null) {
-      print('Error: Token is null');
-      return null;
-    }
-
-      // Construct the query parameters
       final queryParameters = {
         'date_start': dateStart,
         'date_end': dateEnd,
@@ -342,25 +341,22 @@ class AuthApi {
         if (data['result']['success'] == true) {
           List<Mission> missions = [];
           for (var missionData in data['result']['data']) {
-            missions.add(Mission.fromJson(missionData)); // Assuming you have a Mission.fromJson() constructor
+            missions.add(Mission.fromJson(missionData));
           }
-          String totalHours = data['result']['total_heure'];
+          String? totalHours = data['result']['total_heure']; // Utilisation de String? pour un champ nullable
           return MissionEffUserResult(missions: missions, totalHours: totalHours);
         } else {
-          // Handle the case where success is not true
           print("API returned success false");
         }
       } else {
-        // Handle HTTP error
         print("Failed to load missions. Status code: ${response.statusCode}");
       }
     } catch (e) {
-      // Handle any errors in the API call
       print('Error fetching mission data: $e');
     }
-
-    return null; // Return null in case of error or no data
+    return null;
   }
+
   static Future<List<FichePaie>?> getFichesPaie() async {
     try {
       final token = await getToken();

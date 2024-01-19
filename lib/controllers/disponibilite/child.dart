@@ -233,8 +233,8 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
                 padding: EdgeInsets.all(_w / 20),
                 child: Wrap(
                   children: <Widget>[
-                    _buildToggle("Matinée", isMorningSelected, 'morning', setModalState),
-                    _buildToggle("Soirée", isEveningSelected, 'evening', setModalState),
+                    _buildToggle("Disponible en Matinée", isMorningSelected, 'morning', setModalState),
+                    _buildToggle("Disponible en Soirée", isEveningSelected, 'evening', setModalState),
                     _buildTimePicker("Heure début matinée", 'startMorning', setModalState),
                     _buildTimePicker("Heure fin matinée", 'endMorning', setModalState),
                     _buildTimePicker("Heure début soirée", 'startEvening', setModalState),
