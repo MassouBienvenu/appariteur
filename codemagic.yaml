@@ -1,20 +1,17 @@
 workflows:
-  build:
-    name: Build iOS
+  default-workflow:
+    name: Appariteur Build iOS
     instance_type: mac_mini_m1
-    max_build_duration: 60
+    max_build_duration:   60
     environment:
       xcode: latest
       cocoapods: default
     scripts:
       - flutter pub get
       - flutter build ios --release --no-codesign
-      - mkdir -p ios/build
-      - xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath ios/build/Runner.xcarchive CODE_SIGNING_ALLOWED=NO
-      - xcodebuild -exportArchive -archivePath ios/build/Runner.xcarchive -exportPath ios/build/Runner.ipa -exportOptionsPlist ios/ExportOptionsNoSign.plist
     artifacts:
       - build/ios/iphoneos/Runner.app
-      - ios/build/Runner.ipa
+      - build/ios/iphoneos/Runner.ipa
     triggering:
       events:
         - push
