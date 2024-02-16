@@ -10,7 +10,7 @@ workflows:
       - flutter pub get
       - flutter build ios --release --no-codesign
       - xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath ios/build/Runner.xcarchive CODE_SIGNING_ALLOWED=NO
-      - xcodebuild -exportArchive -archivePath ios/build/Runner.xcarchive -exportPath ios/build/Runner.ipa -exportOptionsPlist ios/ExportOptions.plist
+      - xcodebuild -exportArchive -archivePath ios/build/Runner.xcarchive -exportPath ios/build/Runner.ipa -exportOptionsPlist ios/ExportOptions.plist CODE_SIGN_IDENTITY=""
     artifacts:
       - build/ios/iphoneos/Runner.app
       - build/ios/iphoneos/Runner.ipa
