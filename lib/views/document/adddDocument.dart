@@ -1,7 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:appariteur/data/apihelper.dart';
+
+import '../../data/apihelper.dart';
+import '../../models/userdoc.dart';
 
 class DocumentUploadPage extends StatefulWidget {
   @override
@@ -9,9 +13,14 @@ class DocumentUploadPage extends StatefulWidget {
 }
 
 class _DocumentUploadPageState extends State<DocumentUploadPage> {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final ImagePicker _picker = ImagePicker();
   File? _selectedFile;
+  String? _pdfPath;
   int? _selectedDocType;
+  bool _uploading = false;
+  bool _isSnackBarVisible = false;
   final Map<int, String> _docTypes = {
     1: 'Pièce d\'identité',
     2: 'Titre de séjour',
@@ -20,28 +29,88 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
     5: 'Contrat',
     15: 'Autre'
   };
-
+  List<UserDoc> userDocs = [];
   Future<void> _pickFile() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
       setState(() {
-        _selectedFile = File(pickedFile.path);
+        _selectedFile = File(file.path!);
+        if (file.extension == 'pdf') {
+          _pdfPath = file.path;
+        }
+      });
+    }
+  }
+  Future<void> ShowUserDoc() async {
+    final userDoc = await AuthApi.getUserDocuments();
+    if (userDoc != null) {
+      setState(() {
+        userDocs = userDoc.toList();
+      });
+    }
+  }
+  Future<void> _uploadFile() async {
+    setState(() {
+      _uploading = true;
+    });
+
+    try {
+      if (_selectedFile != null && _selectedDocType != null) {
+        final success = await AuthApi.uploadDocument(_selectedFile, _selectedDocType.toString());
+        if (success == true) {
+          _showCustomSnackBar('Document enregistré avec succès');
+        } else {
+          _showCustomSnackBar('Echec de l\'enregistrement du document');
+        }
+      } else {
+        _showCustomSnackBar('Sélectionnez un fichier et un type de document!');
+      }
+    } finally {
+      setState(() {
+        _uploading = false;
       });
     }
   }
 
-  Future<void> _uploadFile() async {
-    if (_selectedFile != null && _selectedDocType != null) {
-      final success = await AuthApi.uploadDocument(_selectedFile, _selectedDocType.toString());
-      if (success == true) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Document enregisté avec succès')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Echec de l\'enregistrement du document')));
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sélectionnez un fichier et un type de document!')));
-    }
+  void _showCustomSnackBar(String message) {
+    OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 16.0,
+        left: MediaQuery.of(context).size.width * 0.1,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context)?.insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+      _isSnackBarVisible = false;
+    });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +118,7 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Importer un Document'),
+        title: Text('Importer un Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
@@ -100,7 +169,18 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                       height: _w * 0.5,
                       color: Colors.grey[200],
                       child: _selectedFile != null
-                          ? Image.file(_selectedFile!, fit: BoxFit.cover)
+                          ? _selectedFile!.path.endsWith('.pdf')
+                          ? PDFView(
+                        filePath: _pdfPath,
+                        enableSwipe: true,
+                        swipeHorizontal: true,
+                        autoSpacing: false,
+                        pageFling: false,
+                        pageSnap: false,
+                        defaultPage: 0,
+                        fitPolicy: FitPolicy.BOTH,
+                      )
+                          : Image.file(_selectedFile!, fit: BoxFit.cover)
                           : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -114,10 +194,19 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
               ),
               SizedBox(height: _w / 20),
               ElevatedButton(
-                onPressed: _uploadFile,
+                onPressed: _uploading ? null : _uploadFile, // Disable button while uploading
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: _w / 30),
-                  child: Text('Importer un Document', style: TextStyle(fontSize: _w / 20)),
+                  child: _uploading
+                      ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 10),
+                      Text('Veuillez patienter...'),
+                    ],
+                  )
+                      : Text('Importer le Document', style: TextStyle(fontSize: _w / 20, color: Colors.white)),
                 ),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue,

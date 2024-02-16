@@ -31,6 +31,11 @@ class _CalendarPageState extends State<CalendarPage> {
     ShowUserInfo();
     _fetchPlannings();
   }
+  void _closeAndRefresh() {
+    Navigator.of(context).pop(); // Fermer la fenêtre actuelle
+    _refreshPlannings(); // Actualiser la page
+  }
+
   void _showEditForm(Planning planning) {
     showDialog(
         context: context,
@@ -63,23 +68,58 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
           ),
           actions: <Widget>[
-      TextButton(
-      child: Text('Annuler'),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                _refreshPlannings();
+              },
+            ),
+
             TextButton(
               child: Text('Soumettre'),
               onPressed: () {
                 AuthApi.updatePlanning(planning, salle, heureDebut, heureFin)
                     .then((success) {
                   if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Votre demande de mise à jour a été effectuée.')));
-                    print('Mise à jour réussie');
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        print ("Mise à jour effectuée");
+                        return AlertDialog(
+                          title: const Text('Succès'),
+                          content: const Text('Votre demande de mise à jour a été effectuée avec succès.'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   } else {
                     print('Échec de la mise à jour');
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Votre demande de mise à jour a été échoué.')));
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Echec'),
+                          content: const Text('Votre demande de mise à jour a échoué.'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   }
                   Navigator.of(context).pop();
                 });
@@ -89,6 +129,55 @@ class _CalendarPageState extends State<CalendarPage> {
       );
         },
     );
+  }
+  void _cancelMission(String prestationId, int index) {
+    AuthApi.cancelMission(prestationId).then((success) {
+      _closeAndRefresh(); // Utiliser la nouvelle fonction
+
+      if (success) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(width: 24),
+                    Text("Mission annulée avec succès."),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(width: 24),
+                    Text("Erreur lors de l'annulation de la mission."),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }
+    });
+  }
+
+  void _refreshPlannings() async {
+    _fetchPlannings();
   }
 
   void _fetchPlannings() async {
@@ -109,6 +198,47 @@ class _CalendarPageState extends State<CalendarPage> {
       });
     }
     _previouslySelectedDay = selectedDay;
+  }
+  Widget _buildEventMarker(DateTime date, List<dynamic> events) {
+    if (events.isNotEmpty) {
+
+      Planning event = events.first;
+      Color dotColor = _getDotColor(event.eventColor);
+
+      return Positioned(
+        right: 1,
+        bottom: 1,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: dotColor,
+          ),
+          width: 16.0,
+          height: 16.0,
+          child: Center(
+            child: Text(
+              '${events.length}',
+              style: TextStyle().copyWith(
+                color: Colors.white,
+                fontSize: 12.0,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return Container();
+  }
+  Color _getDotColor(String eventColor) {
+    switch (eventColor) {
+      case 'green':
+        return Colors.green;
+      case 'gray':
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
   }
 
   void _showMissionDetails(DateTime date) {
@@ -192,12 +322,49 @@ class _CalendarPageState extends State<CalendarPage> {
                         SizedBox(height: 8),
 
 
-                        // Add a "Modifier" button
-                        ElevatedButton(
-                          child: Text('Modifier'),
-                          onPressed: () {
-                            _showEditForm(plannings[index]);
-                          },
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              child: Text('Modifier'),
+                              onPressed: () {
+                                _showEditForm(plannings[index]);
+                              },
+                            ),
+                            if (plannings[index].btnCancel) // Si btnCancel est true
+                              ElevatedButton(
+                                child: Text('Annuler'),
+                                onPressed: () {
+                                  _cancelMission(plannings[index].prestationId, index);
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        child: Container(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CircularProgressIndicator(),
+                                              SizedBox(width: 24),
+                                              Text("Mission annulée avec succès."),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                  Future.delayed(Duration(seconds: 1), () {
+                                    Navigator.pop(context); // Dismiss the dialog after 2 seconds
+                                  });
+                                  setState(() {
+                                    _plannings?.removeAt(index);
+                                  });
+
+                                },
+                              ),
+                          ],
                         ),
 
                     ],
@@ -219,8 +386,54 @@ class _CalendarPageState extends State<CalendarPage> {
       },
     );
   }
+  void _handleCancelResult(bool success) {
+    // Close all open popups
+    Navigator.of(context).popUntil((route) => route.isFirst);
 
-
+    // Show a success or failure message
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(success ? 'Succès' : 'Échec'),
+          content: Text(success
+              ? 'La mission a été annulée avec succès.'
+              : 'Erreur lors de l\'annulation de la mission.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _handleUpdateResult(bool success) {
+    // Close all open popups
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(success ? 'Succès' : 'Échec'),
+          content: Text(success
+              ? 'Votre demande de mise à jour a été effectuée avec succès.'
+              : 'Votre demande de mise à jour a échoué.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> ShowUserInfo() async {
     final userInfo = await AuthApi.InfoUser();
@@ -240,7 +453,7 @@ class _CalendarPageState extends State<CalendarPage> {
       return false;
     }
     try {
-      final url = 'https://appariteur.com/api/users/mission.php?mission_id=$prestationId';
+      final url = 'https://appariteur.com/api/users/planning.php?mission_id=$prestationId';
       final response = await http.delete(
         Uri.parse(url),
         headers: {
@@ -316,7 +529,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     ),
                   ],
                 ),
-                child: TableCalendar(
+                child: RefreshIndicator(
+          onRefresh:() async{
+            _refreshPlannings();
+            },
+    child: TableCalendar(
               availableCalendarFormats: const {
                 CalendarFormat.month: 'Month', // Only allow the month view
               },
@@ -330,7 +547,13 @@ class _CalendarPageState extends State<CalendarPage> {
               onDayLongPressed: (selectedDay, focusedDay) {
                 _showMissionDetails(selectedDay);
               },
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, date, events) {
+                      return _buildEventMarker(date, events);
+                    },
+                  ),
             ),
+                )
           ),
               SizedBox(height: _h * 0.03),
           Container(
@@ -427,43 +650,17 @@ class _CalendarPageState extends State<CalendarPage> {
 
   List<Planning> _getPlanningsForDay(DateTime date) {
     final List<Planning> plannings = _plannings ?? [];
-    return plannings.where((p) {
-      final eventDate = DateTime.tryParse(p.datePres) ?? DateTime(0); // Handle potential parsing issues with a default date
+    return plannings
+        .where((p) {
+      final eventDate = DateTime.tryParse(p.datePres) ?? DateTime(0);
       return eventDate.day == date.day &&
           eventDate.month == date.month &&
           eventDate.year == date.year;
-    }).toList();
+    })
+        .toList()
+      ..sort((a, b) => a.matinSoir.compareTo(b.matinSoir)); // Trie la liste selon matin/soir
   }
 
-  Widget _buildMissionDetails(List<Planning> plannings) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: plannings.map((planning) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lieu: ${planning.lieu}',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text('Salle: ${planning.salle}'),
-              Text('Heure début: ${planning.heureDebut}'),
-              Text('Heure fin: ${planning.heureFin}'),
-              Text('Durée: ${planning.duree}'),
-              if (planning.btnCancel)
-                IconButton(
-                  icon: Icon(Icons.cancel, color: Colors.red),
-                  onPressed: () {
-                    cancelMission(planning.prestationId);
-                  },
-                ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
+
+
 }

@@ -22,7 +22,7 @@ class TopBarS extends StatelessWidget implements PreferredSizeWidget {
       elevation: 2,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(20),
+          bottom: Radius.circular(0),
         ),
       ),
       title: Text(

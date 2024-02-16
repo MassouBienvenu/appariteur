@@ -126,7 +126,34 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
         );
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Echec de la mise à jour avec l\'image')));
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 24),
+                  Text("Modification effectuée."),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      Timer(Duration(seconds: 3), () async {
+        Navigator.pop(context); // Close the dialog
+        await AuthApi.logout();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+        );
+      });
     }
   }
 

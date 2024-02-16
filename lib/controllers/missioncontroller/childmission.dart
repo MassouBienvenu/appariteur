@@ -11,7 +11,7 @@ class BodyM extends StatefulWidget {
 
 class _BodyMState extends State<BodyM> {
   DateTime now = DateTime.now();
-
+  bool _hasSearched = false;
   DateTime? _startDate = DateTime.now();
   DateTime? _endDate = DateTime.now();
   List<Mission>? _missions = [];
@@ -51,9 +51,6 @@ class _BodyMState extends State<BodyM> {
     return '${hours}h ${minutes}';
   }
 
-// Utilisez cette fonction pour formater _totalHours avant de l'afficher
-// Par exemple :
-// _totalHours = formatTotalHours(result.totalHours);
 
   Widget _buildTotalHoursDisplay() {
     double _w = MediaQuery.of(context).size.width;
@@ -73,47 +70,54 @@ class _BodyMState extends State<BodyM> {
   }
 
   Widget _buildMissionsList() {
-    return _missions != null && _missions!.isNotEmpty
-        ? ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: _missions!.length,
-      itemBuilder: (context, index) {
-        final mission = _missions![index];
-        return Card(
-          elevation: 4,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            leading: Icon(Icons.assignment_turned_in, color: Colors.green),
-            title: Text(mission.etabli, style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(DateFormat('dd/MM/yyyy').format(mission.date)),
-                Text(mission.moment, style: TextStyle(color: Colors.black54)),
-              ],
-            ),
-            trailing: Text(
-              mission.duree,
-              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-            ),
+    if (_missions == null || _missions!.isEmpty) {
+      String message = _hasSearched
+          ? 'Aucune mission à afficher'
+          : 'Sélectionnez une période pour chercher les missions';
+
+      return Center(
+        child: Text(
+          message,
+          style: TextStyle(
+            fontSize: 18,
+            fontStyle: FontStyle.italic,
+            color: Colors.red,
           ),
-        );
-      },
-    )
-        : Center(
-      child: Text(
-        _totalHours != null && _totalHours!.isNotEmpty
-            ? 'Aucune mission à afficher'
-            : 'Sélectionnez une période pour chercher les missions',
-        style: TextStyle(
-          fontSize: 18,
-          fontStyle: FontStyle.italic,
-          color: Colors.red,
         ),
-      ),
-    );
+      );
+    } else {
+      // Si des missions sont trouvées, affichez-les dans une liste.
+      return RefreshIndicator(onRefresh : _fetchMissions, child: ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: _missions!.length,
+        itemBuilder: (context, index) {
+          final mission = _missions![index];
+          return Card(
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              leading: Icon(Icons.assignment_turned_in, color: Colors.green),
+              title: Text(mission.etabli, style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(DateFormat('dd/MM/yyyy').format(mission.date)),
+                  Text(mission.moment, style: TextStyle(color: Colors.black54)),
+                ],
+              ),
+              trailing: Text(
+                mission.duree,
+                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        },
+      )
+      );
+    }
   }
+
   Future<void> _pickDate(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -142,12 +146,19 @@ class _BodyMState extends State<BodyM> {
       MissionEffUserResult? result = await AuthApi.getMissionsEffectuees(formattedStartDate, formattedEndDate);
       if (result != null) {
         setState(() {
-          _missions = result.missions;
+          _missions = result.missions ?? [];
           _totalHours = result.totalHours;
+          _hasSearched = true; // Indiquer que la recherche a été effectuée
+        });
+      } else {
+        setState(() {
+          _missions = [];
+          _totalHours = null;
+          _hasSearched = true;
         });
       }
     } else {
-     showToast("Chosissez une date de début et une date de fin.");
+      showToast("Choisissez une date de début et une date de fin.");
     }
   }
 
@@ -165,9 +176,9 @@ class _BodyMState extends State<BodyM> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildDateButton(context, true, 'Date de début: ', _startDate),
+                _buildDateButton(context, true, 'Du: ', _startDate),
                 SizedBox(width: _w / 30),
-                _buildDateButton(context, false, 'Date de fin: ', _endDate),
+                _buildDateButton(context, false, 'Au: ', _endDate),
               ],
             ),
             SizedBox(height: _w / 30),

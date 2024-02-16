@@ -78,31 +78,63 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
 class ListItem extends StatelessWidget {
   final double width;
   final FichePaie fiche;
-  Future<void> downloadFile(String url, String fileName) async {
+  Future<void> downloadFile(String url, String fileName, BuildContext context) async {
+    await requestPermissions();
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
-      final baseDir = await getExternalStorageDirectory();
+      final baseDir = await getExternalStorageDirectory(); // Get the directory path
       final localPath = baseDir!.path + '/Download';
 
-
       final savedDir = Directory(localPath);
-      if (!savedDir.existsSync()) {
-        savedDir.createSync(recursive: true);
+      if (!await savedDir.exists()) {
+        await savedDir.create(recursive: true);
       }
+
+      // Provide the savedDir parameter to the FlutterDownloader.enqueue method
       final taskId = await FlutterDownloader.enqueue(
         url: url,
-        savedDir: localPath,
+        savedDir: localPath, // Provide the directory path where the file will be saved
         fileName: fileName,
         showNotification: true,
         openFileFromNotification: true,
       );
+    } else if (status.isPermanentlyDenied) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Permission nécessaire'),
+          content: Text('Cette application a besoin de la permission de stockage pour télécharger des fichiers. Veuillez activer la permission dans les paramètres de l\'application.'),
+          actions: <TextButton>[
+            TextButton(
+              child: Text('Ouvrir les paramètres'),
+              onPressed: () => openAppSettings(),
+            ),
+          ],
+        ),
+      );
     } else {
-      // Gérer le cas où l'utilisateur refuse la permission
-      print("Permission de stockage refusée");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('La permission de stockage est nécessaire pour télécharger des fichiers.'),
+        ),
+      );
     }
   }
 
+  Future<void> requestPermissions() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        await Permission.storage.request();
+      }
+    } else if(Platform.isIOS) {
+      var status = await Permission.photos.status;
+      if (status != PermissionStatus.granted) {
+        await Permission.photos.request();
+      }
+    }
+  }
 
 
   ListItem({required this.width, required this.fiche});
@@ -148,7 +180,7 @@ class ListItem extends StatelessWidget {
                   children: [
                     TextButton.icon(
                       onPressed: () {
-                        downloadFile('https://appariteur.com/admins/documents/${fiche.fichier}', fiche.fichier);
+                        downloadFile('https://appariteur.com/admins/documents/${fiche.fichier}', fiche.fichier, context);
                       },
                       icon: Icon(Icons.download, color: Theme.of(context).primaryColor),
                       label: Text('Télécharger', style: Theme.of(context).textTheme.bodyText1),

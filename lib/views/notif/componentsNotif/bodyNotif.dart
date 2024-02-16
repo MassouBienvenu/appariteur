@@ -23,7 +23,7 @@ class _BodyNotifState extends State<BodyNotif> {
           ? const Center(
               // Display message in the center of the page
               child: Text(
-                "Page en cours de construction",
+                "Pas de notifications pour l\'instant.",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             )

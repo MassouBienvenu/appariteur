@@ -599,7 +599,7 @@ class AuthApi {
       return false;
     }
 
-    final url = 'https://appariteur.com/api/mission/cancel.php?mission_id=$missionId';
+    final url = 'https://appariteur.com/api/users/planning.php?mission_id=$missionId';
 
     final response = await http.delete(
       Uri.parse(url),

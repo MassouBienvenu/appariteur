@@ -1,13 +1,18 @@
 workflows:
   ios-app:
     name: Appariteur
-    max_build_duration: 120
+    max_build_duration:  120
     instance_type: mac_mini
     environment:
       vars:
-      # Add your environment variables here
-      xcode: latest
-      cocoapods: default
+        # Add your environment variables here
+        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        FLUTTER_BUILD_MODE: "release"
+        FLUTTER_TARGET: "lib/main.dart"
+        CODE_SIGNING_IDENTITY: "iPhone Distribution"
+        CODE_SIGNING_STYLE: "Manual"
+        CODE_SIGNING_PROVISIONING_PROFILE_SPECIFIER: "match Development *"
     triggering:
       events:
         - push
@@ -17,23 +22,17 @@ workflows:
           source: true
     scripts:
       - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
-        script: keychain initialize
+        script: keychain initialize --name "ios_build_keychain"
       - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files "io.appariteur.app" --type IOS_APP_STORE --create
       - name: Set up signing certificate
         script: keychain add-certificates
       - name: Increment build number
-        script: agvtool new-version -all $(($(app-store-connect get-latest-app-store-version "io.appariteur.app" --platform IOS + 1)))
+        script: agvtool new-version -all $(($(app-store-connect get-latest-app-store-version "io.appariteur.app" --platform IOS +  1)))
       - name: Build ipa for distribution
-        script: xcode-project build-ipa --project "ios/Runner.xcodeproj" --scheme "Runner"
+        script: flutter build ipa --release --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
       - ios/build/ios/xcarchive/*.xcarchive.zip
-    publishing:
-      app_store_connect:
-        apple_id: your@appleid.com
-        password: '@env(APP_STORE_CONNECT_PASSWORD)'
-        app_specific_password: '@env(APP_SPECIFIC_PASSWORD)'
-        app_identifier: "io.appariteur.app"

@@ -72,11 +72,12 @@ class _DocumentShildState extends State<DocumentShild> {
     }
   }
 
-  Future<void> downloadFile(String url, String fileName) async {
+  Future<void> downloadFile(String url, String fileName, BuildContext context) async {
+    await requestPermissions();
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
-      final baseDir = await getExternalStorageDirectory();
+      final baseDir = await getExternalStorageDirectory(); // Get the directory path
       final localPath = baseDir!.path + '/Download';
 
       final savedDir = Directory(localPath);
@@ -84,17 +85,51 @@ class _DocumentShildState extends State<DocumentShild> {
         await savedDir.create(recursive: true);
       }
 
-      await FlutterDownloader.enqueue(
+      // Provide the savedDir parameter to the FlutterDownloader.enqueue method
+      final taskId = await FlutterDownloader.enqueue(
         url: url,
-        savedDir: localPath,
+        savedDir: localPath, // Provide the directory path where the file will be saved
         fileName: fileName,
         showNotification: true,
         openFileFromNotification: true,
       );
+    } else if (status.isPermanentlyDenied) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Permission nécessaire'),
+          content: Text('Cette application a besoin de la permission de stockage pour télécharger des fichiers. Veuillez activer la permission dans les paramètres de l\'application.'),
+          actions: <TextButton>[
+            TextButton(
+              child: Text('Ouvrir les paramètres'),
+              onPressed: () => openAppSettings(),
+            ),
+          ],
+        ),
+      );
     } else {
-      print("Permission Denied!");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('La permission de stockage est nécessaire pour télécharger des fichiers.'),
+        ),
+      );
     }
   }
+
+  Future<void> requestPermissions() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        await Permission.storage.request();
+      }
+    } else if(Platform.isIOS) {
+      var status = await Permission.photos.status;
+      if (status != PermissionStatus.granted) {
+        await Permission.photos.request();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double _w = MediaQuery.of(context).size.width;
@@ -115,7 +150,10 @@ class _DocumentShildState extends State<DocumentShild> {
       ),
 
       backgroundColor: Colors.white,
-      body: AnimationLimiter(
+      body:RefreshIndicator(
+    onRefresh: () async {
+    await ShowUserDoc();
+    },child : AnimationLimiter(
         child: ListView.builder(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(25),
@@ -165,7 +203,7 @@ class _DocumentShildState extends State<DocumentShild> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextButton.icon(
-                                  onPressed: () => downloadFile('https://appariteur.com/admins/documents/${doc.docName}', '${doc.docName}.pdf'),
+                                  onPressed: () => downloadFile('https://appariteur.com/admins/documents/${doc.docName}', '${doc.docName}.pdf', context),
                                   icon: Icon(Icons.download, color: Theme.of(context).primaryColor),
                                   label: Text('Télécharger', style: Theme.of(context).textTheme.bodyText1),
                                 ),
@@ -199,6 +237,7 @@ class _DocumentShildState extends State<DocumentShild> {
           },
         ),
       ),
+      )
     );
   }
 }
