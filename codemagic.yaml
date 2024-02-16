@@ -1,38 +1,19 @@
 workflows:
-  ios-app:
-    name: Appariteur
-    max_build_duration:  120
+  default-workflow:
+    name: Appariteur Build iOS
     instance_type: mac_mini_m1
+    max_build_duration:  60
     environment:
-      vars:
-        # Add your environment variables here
-        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
-        XCODE_SCHEME: "Runner"
-        FLUTTER_BUILD_MODE: "release"
-        FLUTTER_TARGET: "lib/main.dart"
-        CODE_SIGNING_IDENTITY: "iPhone Distribution"
-        CODE_SIGNING_STYLE: "Manual"
-        CODE_SIGNING_PROVISIONING_PROFILE_SPECIFIER: "match Development *"
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - flutter pub get
+      - flutter build ios --release --no-codesign
+    artifacts:
+      - build/ios/iphoneos/Runner.app
+      - build/ios/iphoneos/Runner.ipa
     triggering:
       events:
         - push
-      branch_patterns:
-        - pattern: '^main$'
-          include: true
-          source: true
-    scripts:
-      - name: Fetch signing files
-        script: keychain initialize --name "ios_build_keychain"
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "io.appariteur.app" --type IOS_APP_STORE --create
-      - name: Add certificates to keychain
-        script: keychain add-certificates
-      - name: Increment build number
-        script: agvtool new-version -all $(($(app-store-connect get-latest-app-store-version "io.appariteur.app" --platform IOS +  1)))
-      - name: Build ipa for distribution
-        script: flutter build ipa --release --no-codesign
-    artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - ios/build/ios/xcarchive/*.xcarchive.zip
+        - pull_request
+        - tag
