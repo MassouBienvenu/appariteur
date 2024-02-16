@@ -8,7 +8,7 @@ workflows:
       cocoapods: default
     scripts:
       - flutter pub get
-      - flutter build ios --release --no-codesign
+      - flutter build ios --release --no-codesign --export-options-plist=ios/ExportOptions.plist
     artifacts:
       - build/ios/iphoneos/Runner.app
       - build/ios/iphoneos/Runner.ipa
