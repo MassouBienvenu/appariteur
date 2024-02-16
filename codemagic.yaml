@@ -21,12 +21,12 @@ workflows:
           include: true
           source: true
     scripts:
-      - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
+      - name: Fetch signing files
         script: keychain initialize --name "ios_build_keychain"
       - name: Fetch signing files
         script: |
           app-store-connect fetch-signing-files "io.appariteur.app" --type IOS_APP_STORE --create
-      - name: Set up signing certificate
+      - name: Add certificates to keychain
         script: keychain add-certificates
       - name: Increment build number
         script: agvtool new-version -all $(($(app-store-connect get-latest-app-store-version "io.appariteur.app" --platform IOS +  1)))
