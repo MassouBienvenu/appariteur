@@ -1,25 +1,13 @@
 workflows:
   ios-build:
-    name: iOS Build
-    instance_type: mac_mini_m1
-    environment:
-      vars:
-        XCODE_PROJECT: "Runner.xcodeproj"
-        XCODE_SCHEME: "Runner"
-        BUNDLE_ID: "com.appariteur.app"
-        APP_NAME: "Appariteur"
-      xcode: latest
-      cocoapods: default
     scripts:
-      - name: Build iOS app
+      - name: Flutter build iOS
         script: |
           flutter build ios --release
+      - name: Archive app
+        script: |
           cd build/ios
-          xcodebuild -scheme Runner archive -archivePath $FCI_BUILD_DIR/Runner.xcarchive
+          xcodebuild -scheme Runner -configuration Release archive -archivePath $FCI_BUILD_DIR/app.xcarchive -allowProvisioningUpdates
       - name: Export ipa
         script: |
-          xcodebuild -exportArchive -archivePath "$FCI_BUILD_DIR/Runner.xcarchive" -exportPath "$FCI_BUILD_DIR" -exportOptionsPlist ExportOptions.plist
-    artifacts:
-      - build/ios/iphoneos/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
+          xcodebuild -exportArchive -archivePath $FCI_BUILD_DIR/app.xcarchive -exportPath $FCI_BUILD_DIR -exportOptionsPlist exportOptions.plist
