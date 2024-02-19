@@ -10,6 +10,7 @@ workflows:
       - flutter pub get
       - flutter build ios --release --codesign
     artifacts:
+      - build/ios/iphoneos/Runner.app.zip
       - build/ios/iphoneos/Runner.ipa
     triggering:
       events:
