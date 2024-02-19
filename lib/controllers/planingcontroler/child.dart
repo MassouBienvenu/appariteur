@@ -86,10 +86,9 @@ class _CalendarPageState extends State<CalendarPage> {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        print ("Mise à jour effectuée");
                         return AlertDialog(
                           title: const Text('Succès'),
-                          content: const Text('Votre demande de mise à jour a été effectuée avec succès.'),
+                          content: const Text('Opération effectuée avec succès.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('OK'),
@@ -102,13 +101,12 @@ class _CalendarPageState extends State<CalendarPage> {
                       },
                     );
                   } else {
-                    print('Échec de la mise à jour');
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('Echec'),
-                          content: const Text('Votre demande de mise à jour a échoué.'),
+                          title: const Text('Échec'),
+                          content: const Text('Échec de l\'opération.'),
                           actions: <Widget>[
                             TextButton(
                               child: const Text('OK'),
@@ -121,10 +119,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       },
                     );
                   }
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Fermer le dialogue d'édition
                 });
               },
             ),
+
           ],
       );
         },

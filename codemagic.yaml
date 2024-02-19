@@ -1,17 +1,22 @@
 workflows:
   default-workflow:
+
     name: Appariteur Build iOS
     instance_type: mac_mini_m1
-    max_build_duration:   60
+    max_build_duration: 60
+
     environment:
       xcode: latest
       cocoapods: default
+
     scripts:
       - flutter pub get
       - flutter build ios --release --no-codesign
+
     artifacts:
       - build/ios/iphoneos/Runner.app
-      - build/ios/iphoneos/Runner.ipa
+      - /tmp/codemagic/build.ipa
+
     triggering:
       events:
         - push
