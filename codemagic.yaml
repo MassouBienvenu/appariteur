@@ -1,13 +1,20 @@
 workflows:
   ios-build:
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
     scripts:
-      - name: Flutter build iOS
+      - name: Flutter install dependencies
+        script: flutter pub get
+      - name: Flutter build ipa
         script: |
-          flutter build ios --release --no-codesign
-      - name: Archive app
-        script: |
+          flutter build ios --release --no-codesign  
           cd build/ios
-          xcodebuild -scheme Runner -configuration Release archive -archivePath $FCI_BUILD_DIR/app.xcarchive -allowProvisioningUpdates
+          xcodebuild -scheme Runner -configuration Release -destination generic/platform=iOS archive -archivePath $FCI_BUILD_DIR/app.xcarchive -allowProvisioningUpdates
       - name: Export ipa
         script: |
           xcodebuild -exportArchive -archivePath $FCI_BUILD_DIR/app.xcarchive -exportPath $FCI_BUILD_DIR -exportOptionsPlist exportOptions.plist
+    artifacts:
+      - $FCI_BUILD_DIR/*.ipa
+      - $HOME/library/Developer/Xcode/DerivedData/**/*.log
