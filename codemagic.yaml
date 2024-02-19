@@ -1,20 +1,26 @@
 workflows:
-  ios-build:
+  default-workflow:
+    name: Workflow Name
+    instance_type: mac_mini
+    max_build_duration:  60
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: default
     scripts:
-      - name: Flutter install dependencies
-        script: flutter pub get
-      - name: Flutter build ipa
-        script: |
-          flutter build ios --release --no-codesign  
-          cd build/ios
-          xcodebuild -scheme Runner -configuration Release -destination generic/platform=iOS archive -archivePath $FCI_BUILD_DIR/app.xcarchive -allowProvisioningUpdates
-      - name: Export ipa
-        script: |
-          xcodebuild -exportArchive -archivePath $FCI_BUILD_DIR/app.xcarchive -exportPath $FCI_BUILD_DIR -exportOptionsPlist exportOptions.plist
+      - flutter pub get
+      - flutter build ipa --release
     artifacts:
-      - $FCI_BUILD_DIR/*.ipa
-      - $HOME/library/Developer/Xcode/DerivedData/**/*.log
+      - build/app/outputs/flutter-ipa/app-release.ipa
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: master
+          include: true
+        - pattern: feature/*
+          include: false
+        - pattern: develop
+          include: false
+        - pattern: release/*
+          include: true
+
