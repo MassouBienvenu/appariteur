@@ -85,7 +85,43 @@ class AuthApi {
     } catch (e) {
       print('Erreur lors de la connexion à l\'API : $e');
     }
-    return null; // Gérer les erreurs comme vous le souhaitez
+    return null;
+  }
+  static Future<bool> signUp(UserData userData) async {
+    try {
+      const url = 'https://appariteur.com/api/users/register.php';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nameUser': userData.name,
+          'emailUser': userData.email,
+          'telUser': userData.tel,
+          'sexeUser': userData.sexe,
+          'passwordUser': userData.password,
+          'datenaisUser': userData.datenais,
+          'lieunaisUser': userData.lieunais,
+          'rueAp': userData.rue,
+          'villeAp': userData.ville,
+          'paysAp': userData.pays,
+        }),
+      );
+
+      if (response.statusCode ==  200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          print('Inscription réussie!');
+          return true;
+        } else {
+          print('Erreur lors de l\'inscription: ${data['message'] ?? 'Aucun message d\'erreur spécifique.'}');
+        }
+      } else {
+        print('Erreur lors de l\'inscription, code de statut: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur lors de l\'appel à l\'API d\'inscription: $e');
+    }
+    return false;
   }
 
   static Future<UserData?> getLocalUserData() async {

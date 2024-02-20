@@ -9,6 +9,7 @@ import '../../views/notif/notifScreen.dart';
 import '../../views/widgets/InputDecoration.dart';
 import '../../views/widgets/addonglobal/bottombar.dart';
 import '../../views/widgets/images.dart';
+import '../registerController/childRegister.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -150,6 +151,31 @@ class _SignInScreenState extends State<SignInScreen> {
                                 right: _w * 0.1,
                               ),
                               30.height,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('Vous n\'avez pas de compte?',
+                                      style: primaryTextStyle(
+                                          color: Colors.grey)),
+                                  3.width,
+                                  Flexible(
+                                    child: Text('Inscrivez-vous ici',
+                                        textAlign: TextAlign.center,
+                                        style: boldTextStyle(color: black)),
+                                  ),
+                                ],
+                              ).onTap(() {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SignUpScreen()
+                                  ),
+                                );
+                              }).center(),
+                              20.height,
                             ],
                           ),
                         ),

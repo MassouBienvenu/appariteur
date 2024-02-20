@@ -38,13 +38,13 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _showEditForm(Planning planning) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-      String salle = planning.salle;
-      String heureDebut = planning.heureDebut;
-      String heureFin = planning.heureFin;
+      context: context,
+      builder: (BuildContext context) {
+        String salle = planning.salle;
+        String heureDebut = planning.heureDebut;
+        String heureFin = planning.heureFin;
 
-      return AlertDialog(
+        return AlertDialog(
           title: Text('Modifier la mission'),
           content: SingleChildScrollView(
             child: ListBody(
@@ -72,109 +72,28 @@ class _CalendarPageState extends State<CalendarPage> {
               child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
-
-                _refreshPlannings();
               },
             ),
-
             TextButton(
               child: Text('Soumettre'),
               onPressed: () {
                 AuthApi.updatePlanning(planning, salle, heureDebut, heureFin)
                     .then((success) {
-                  if (success) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Succès'),
-                          content: const Text('Opération effectuée avec succès.'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Échec'),
-                          content: const Text('Échec de l\'opération.'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                  Navigator.of(context).pop(); // Fermer le dialogue d'édition
+                  _handleUpdateResult(success);
                 });
               },
             ),
-
           ],
-      );
-        },
+        );
+      },
     );
   }
+
   void _cancelMission(String prestationId, int index) {
     AuthApi.cancelMission(prestationId).then((success) {
-      _closeAndRefresh(); // Utiliser la nouvelle fonction
-
-      if (success) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              child: Container(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(width: 24),
-                    Text("Mission annulée avec succès."),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return Dialog(
-              child: Container(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(width: 24),
-                    Text("Erreur lors de l'annulation de la mission."),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      }
+      _handleCancelResult(success);
     });
   }
-
   void _refreshPlannings() async {
     _fetchPlannings();
   }
@@ -183,6 +102,7 @@ class _CalendarPageState extends State<CalendarPage> {
     _plannings = await AuthApi.getPlanningData();
     setState(() {});
   }
+
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     if (_previouslySelectedDay != null &&
@@ -386,17 +306,15 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
   void _handleCancelResult(bool success) {
-    // Close all open popups
-    Navigator.of(context).popUntil((route) => route.isFirst);
 
-    // Show a success or failure message
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(success ? 'Succès' : 'Échec'),
           content: Text(success
-              ? 'La mission a été annulée avec succès.'
+              ? 'Mission annulée avec succès.'
               : 'Erreur lors de l\'annulation de la mission.'),
           actions: <Widget>[
             TextButton(
@@ -411,16 +329,15 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
   void _handleUpdateResult(bool success) {
-    // Close all open popups
-    Navigator.of(context).popUntil((route) => route.isFirst);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(success ? 'Succès' : 'Échec'),
           content: Text(success
-              ? 'Votre demande de mise à jour a été effectuée avec succès.'
-              : 'Votre demande de mise à jour a échoué.'),
+              ? 'Opération effectuée avec succès.'
+              : 'Échec de l\'opération.'),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),

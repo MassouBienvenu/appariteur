@@ -15,6 +15,7 @@
   final String? pays;
   final String? niveau;
   final String? user;
+  final String? password;
   final String? token;
 
   UserData({
@@ -34,6 +35,7 @@
     this.pays,
     this.niveau,
     this.user,
+    this.password,
     this.token,
   });
 
@@ -74,6 +76,7 @@
     'pays': pays,
     'niveau': niveau,
     'user': user,
+    'password':password,
     'token': token,
   };
 }
