@@ -107,7 +107,7 @@ class _BodyMState extends State<BodyM> {
                 ],
               ),
               trailing: Text(
-                mission.duree,
+                mission.duree.substring(0,5),
                 style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
               ),
             ),

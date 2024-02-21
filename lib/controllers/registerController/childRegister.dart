@@ -1,15 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
-import '../../data/apihelper.dart';
-import '../../helper/routes/routes.dart';
 import '../../models/user.dart';
 import '../../views/notif/notifScreen.dart';
 import '../../views/widgets/InputDecoration.dart';
 import '../../views/widgets/addonglobal/bottombar.dart';
 import '../../views/widgets/images.dart';
 import '../loginController/childlogin.dart';
-
+import 'package:http/http.dart' as http;
 class SignUpScreen extends StatefulWidget {
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
@@ -19,104 +19,175 @@ class _SignUpScreenState extends State<SignUpScreen> {
   var nameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+  var confirmPasswordController = TextEditingController();
   var phoneController = TextEditingController();
-  var sexeController = TextEditingController();
   var birthdateController = TextEditingController();
   var birthplaceController = TextEditingController();
   var streetController = TextEditingController();
-  var postalCodeController = TextEditingController();
   var cityController = TextEditingController();
   var countryController = TextEditingController();
   FocusNode nameFocusNode = FocusNode();
   FocusNode emailFocusNode = FocusNode();
   FocusNode passwordFocusNode = FocusNode();
+  FocusNode confirmPasswordFocusNode = FocusNode();
   FocusNode phoneFocusNode = FocusNode();
-  FocusNode sexeFocusNode = FocusNode();
   FocusNode birthdateFocusNode = FocusNode();
   FocusNode birthplaceFocusNode = FocusNode();
   FocusNode streetFocusNode = FocusNode();
-  FocusNode postalCodeFocusNode = FocusNode();
   FocusNode cityFocusNode = FocusNode();
   FocusNode countryFocusNode = FocusNode();
   bool isLoading = false;
 
-  String selectedGender = "Masculin"; // Valeur par défaut pour le champ de sexe
+  String selectedGender = "Masculin";
 
-  Future<void> _signUp() async {
-    var name = nameController.text.trim();
-    var email = emailController.text.trim();
-    var password = passwordController.text.trim();
-    var phone = phoneController.text.trim();
-    var sexe = selectedGender;
-    var birthdate = birthdateController.text.trim();
-    var birthplace = birthplaceController.text.trim();
-    var street = streetController.text.trim();
-    var postalCode = postalCodeController.text.trim();
-    var city = cityController.text.trim();
-    var country = "France";
-
-    if (name.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        phone.isEmpty ||
-        sexe.isEmpty ||
-        birthdate.isEmpty ||
-        birthplace.isEmpty ||
-        street.isEmpty ||
-        postalCode.isEmpty ||
-        city.isEmpty ||
-        country.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veuillez remplir tous les champs')),
-      );
-      return;
-    }
-
+  Future<void> signUpUser() async {
     setState(() {
       isLoading = true;
     });
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        birthdateController.text.isEmpty ||
+        birthplaceController.text.isEmpty ||
+        streetController.text.isEmpty ||
+        cityController.text.isEmpty ||
+        countryController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Veuillez remplir tous les champs'),
+          duration: Duration(seconds:  3),
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Vérification du format du numéro de téléphone
+    final phonePattern = RegExp(r'^\+33[0-9]{9}$');
+    if (!phonePattern.hasMatch(phoneController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Numéro de téléphone invalide'),
+          duration: Duration(seconds:  3),
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Vérification de la correspondance des mots de passe
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Les mots de passe ne correspondent pas'),
+          duration: Duration(seconds:  3),
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Vérification du format de l'adresse e-mail
+    final emailPattern = RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+    if (!emailPattern.hasMatch(emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Adresse e-mail invalide'),
+          duration: Duration(seconds:  3),
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
 
     try {
-      var userData = UserData(
-        name: name,
-        email: email,
-        password: password,
-        tel: phone,
-        sexe: sexe,
-        datenais: birthdate,
-        lieunais: birthplace,
-        rue: street,
-        codepostal: postalCode,
-        ville: city,
-        pays: country,
+      final response = await http.post(
+        Uri.parse('https://appariteur.com/api/users/register.php'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(UserData(
+          name: nameController.text,
+          email: emailController.text,
+          tel: phoneController.text,
+          sexe: selectedGender,
+          password: passwordController.text,
+          datenais: birthdateController.text,
+          lieunais: birthplaceController.text,
+          rue: streetController.text,
+          pays: countryController.text,
+        ).toApiJson()),
       );
-      bool? success = await AuthApi.signUp(userData);
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Inscription réussie!')),
-        );
 
-        await Future.delayed(Duration(seconds: 2));
-        Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen()));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'inscription')),
+      if (response.statusCode ==  201) {
+        print("Succès");
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Succès'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('Inscription réussie! Vous pouvez maintenant vous connecter'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInScreen()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         );
+      } else {
+        // Gérer les erreurs de l'API
+        print('Erreur lors de l\'inscription: ${response.body}');
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'inscription: ${e.toString()}')),
-      );
+    } catch (e, stackTrace) {
+      print('Exception lors de l\'inscription: $e');
+      print('StackTrace: $stackTrace');
     } finally {
       setState(() {
         isLoading = false;
       });
     }
   }
+  @override
+  void initState() {
+    super.initState();
+    countryFocusNode.unfocus();
+    phoneController.text = "+33";
+    phoneController.addListener(() {
+      if (phoneController.text.length > 12) {
+        phoneController.text = phoneController.text.substring(0, 12);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     double _w = MediaQuery.of(context).size.width;
+    countryController.text = "France";
+    countryController..text = "France";
+
     return Scaffold(
       body: Container(
         width: _w,
@@ -187,7 +258,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   keyboardType: TextInputType.phone,
                                   controller: phoneController,
                                   focus: phoneFocusNode,
-                                  nextFocus: sexeFocusNode,
                                 ),
                                 16.height,
                                 Row(
@@ -239,7 +309,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   keyboardType: TextInputType.visiblePassword,
                                   controller: passwordController,
                                   focus: passwordFocusNode,
-                                  nextFocus: passwordFocusNode,
+                                  nextFocus: birthdateFocusNode,
                                 ),
                                 16.height,
                                 AppTextField(
@@ -250,8 +320,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                   textFieldType: TextFieldType.PASSWORD,
                                   keyboardType: TextInputType.visiblePassword,
-                                  controller: passwordController,
-                                  focus: passwordFocusNode,
+                                  controller: confirmPasswordController,
+                                  focus: confirmPasswordFocusNode,
                                   nextFocus: passwordFocusNode,
                                 ),
                                 16.height,
@@ -279,7 +349,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       keyboardType: TextInputType.text,
                                       controller: birthdateController,
                                       focus: birthdateFocusNode,
-                                      nextFocus: birthplaceFocusNode, textFieldType: TextFieldType.OTHER,
+                                      nextFocus: birthplaceFocusNode,
+                                      textFieldType: TextFieldType.OTHER,
                                     ),
                                   ),
                                 ),
@@ -299,9 +370,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre rue',
-                                    context: context,
-                                    prefixIcon: Icons.streetview_outlined
+                                      hint: 'Entrer votre rue',
+                                      context: context,
+                                      prefixIcon: Icons.streetview_outlined
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
@@ -327,7 +398,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   decoration: coInputDecoration(
                                     hint: 'Entrer votre pays de résidence',
                                     context: context,
-                                    prefixIcon: Icons.location_searching_outlined,
+                                    prefixIcon: Icons.place_outlined,
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
@@ -338,7 +409,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 30.height,
                                 isLoading
                                     ? Center(child: CircularProgressIndicator())
-                                    : AppButton(
+                                    :AppButton(
                                   text: "S'inscrire",
                                   color: Theme.of(context).primaryColor,
                                   textColor: Colors.white,
@@ -346,11 +417,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                   width: _w,
-                                  onTap: _signUp,
+                                  onTap: () {
+                                    print("Button tapped");  // Add this line for debugging
+                                    signUpUser();
+
+
+                                  },
                                 ).paddingOnly(
                                   left: _w * 0.1,
                                   right: _w * 0.1,
                                 ),
+
                                 30.height,
                               ],
                             ),

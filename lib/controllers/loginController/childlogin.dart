@@ -9,6 +9,7 @@ import '../../views/notif/notifScreen.dart';
 import '../../views/widgets/InputDecoration.dart';
 import '../../views/widgets/addonglobal/bottombar.dart';
 import '../../views/widgets/images.dart';
+import '../passwordresetController/passwordreset.dart';
 import '../registerController/childRegister.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -134,7 +135,29 @@ class _SignInScreenState extends State<SignInScreen> {
                                 controller: passwordController,
                                 focus: passWordFocusNode,
                               ),
-                              30.height,
+                              5.height,
+                          Align(
+                            alignment: Alignment.centerRight,
+                              child:
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ResetPasswordScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Mot de passe oublié ?',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                          ),
+                              10.height,
                               isLoading
                                   ? Center(child: CircularProgressIndicator())
                                   : AppButton(

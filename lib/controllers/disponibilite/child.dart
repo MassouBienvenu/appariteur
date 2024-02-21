@@ -111,14 +111,14 @@ class _DisponibiliteScreenState extends State<DisponibiliteScreen> {
                         children: [
                           Icon(Icons.wb_sunny),
                           SizedBox(width: 8),
-                          Text("${availability.heureDebutMatin} - ${availability.heureFinMatin}"),
+                          Text("${availability.heureDebutMatin.substring(0,5)} - ${availability.heureFinMatin.substring(0,5)}"),
                         ],
                       ),
                       Row(
                         children: [
                           Icon(Icons.nights_stay),
                           SizedBox(width: 8),
-                          Text("${availability.heureDebutSoir} - ${availability.heureFinSoir}"),
+                          Text("${availability.heureDebutSoir.substring(0,5)} - ${availability.heureFinSoir.substring(0,5)}"),
                         ],
                       ),
                     ],

@@ -20,7 +20,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _previouslySelectedDay;
   List<Planning>? _plannings;
 
-  // User Info for displaying hours
+
   var heure_Year = "00:00";
   var heure_Month = "00:00";
   var heure_Week = "00:00";
@@ -41,8 +41,8 @@ class _CalendarPageState extends State<CalendarPage> {
       context: context,
       builder: (BuildContext context) {
         String salle = planning.salle;
-        String heureDebut = planning.heureDebut;
-        String heureFin = planning.heureFin;
+        String heureDebut = planning.heureDebut.substring(0,5);
+        String heureFin = planning.heureFin.substring(0,5);
 
         return AlertDialog(
           title: Text('Modifier la mission'),
@@ -178,7 +178,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2A4494), // Adjust the color to fit your app theme
+                    color: Color(0xFF2A4494),
                   ),
                 ),
               ],
@@ -224,7 +224,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             Icon(Icons.access_time, color:Color(0xFF2A4494)),
                             SizedBox(width: 8),
                             Expanded(
-                              child: Text(plannings[index].heureDebut),
+                              child: Text(plannings[index].heureDebut.substring(0,5)),
                             ),
                           ],
                         ),
@@ -234,7 +234,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             Icon(Icons.timer_off, color: Color(0xFF2A4494)),
                             SizedBox(width: 8),
                             Expanded(
-                              child: Text(plannings[index].heureFin),
+                              child: Text(plannings[index].heureFin.substring(0,5)),
                             ),
                           ],
                         ),
@@ -355,9 +355,9 @@ class _CalendarPageState extends State<CalendarPage> {
     final userInfo = await AuthApi.InfoUser();
     if (userInfo != null) {
       setState(() {
-        heure_Year = userInfo.heureYear ?? '00:00:00';
-        heure_Month = userInfo.heureMonth ?? '00:00:00';
-        heure_Week = userInfo.heureWeek ?? '00:00:00';
+        heure_Year = userInfo.heureYear ?? '00:00';
+        heure_Month = userInfo.heureMonth ?? '00:00';
+        heure_Week = userInfo.heureWeek ?? '00:00';
       });
     }
     // Handle failed connection or response

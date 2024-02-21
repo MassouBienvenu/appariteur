@@ -87,42 +87,8 @@ class AuthApi {
     }
     return null;
   }
-  static Future<bool> signUp(UserData userData) async {
-    try {
-      const url = 'https://appariteur.com/api/users/register.php';
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'nameUser': userData.name,
-          'emailUser': userData.email,
-          'telUser': userData.tel,
-          'sexeUser': userData.sexe,
-          'passwordUser': userData.password,
-          'datenaisUser': userData.datenais,
-          'lieunaisUser': userData.lieunais,
-          'rueAp': userData.rue,
-          'villeAp': userData.ville,
-          'paysAp': userData.pays,
-        }),
-      );
 
-      if (response.statusCode ==  200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true) {
-          print('Inscription réussie!');
-          return true;
-        } else {
-          print('Erreur lors de l\'inscription: ${data['message'] ?? 'Aucun message d\'erreur spécifique.'}');
-        }
-      } else {
-        print('Erreur lors de l\'inscription, code de statut: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erreur lors de l\'appel à l\'API d\'inscription: $e');
-    }
-    return false;
-  }
+
 
   static Future<UserData?> getLocalUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -232,6 +198,32 @@ class AuthApi {
       return false;
     }
   }
+  static Future<bool> resetPassword(String email) async {
+    try {
+      const url = 'https://appariteur.com/api/users/passwordreset.php';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'emailUser': email}),
+      );
+
+      if (response.statusCode ==  200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          print('Le code de réinitialisation a été envoyé à l\'adresse email $email.');
+          return true;
+        } else {
+          print('Erreur lors de la réinitialisation du mot de passe : ${data['error'] ?? 'Aucun message d\'erreur spécifique.'}');
+        }
+      } else {
+        print('Erreur lors de la réinitialisation du mot de passe, code de statut : ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur lors de la réinitialisation du mot de passe : $e');
+    }
+    return false;
+  }
+
   static Future<UserInfo?> InfoUser() async {
     final token = await getToken();
     if (token == null) {
@@ -442,6 +434,43 @@ class AuthApi {
 
     return null; // Gérer les erreurs comme vous le souhaitez
   }
+  static Future<bool> signUp(UserData userData) async {
+    try {
+      const url = 'https://appariteur.com/api/users/register.php';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nameUser': userData.name,
+          'emailUser': userData.email,
+          'telUser': userData.tel,
+          'sexeUser': userData.sexe,
+          'passwordUser': userData.password,
+          'datenaisUser': userData.datenais,
+          'lieunaisUser': userData.lieunais,
+          'rueAp': userData.rue,
+          'villeAp': userData.ville,
+          'paysAp': userData.pays,
+        }),
+      );
+
+      if (response.statusCode ==  200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          print('Inscription réussie!');
+          return true;
+        } else {
+          print('Erreur lors de l\'inscription: ${data['message'] ?? 'Aucun message d\'erreur spécifique.'}');
+        }
+      } else {
+        print('Erreur lors de l\'inscription, code de statut: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur lors de l\'appel à l\'API d\'inscription: $e');
+    }
+    return false;
+  }
+
 
   static Future<List<Planning>?> getPlanningData() async {
     try {
