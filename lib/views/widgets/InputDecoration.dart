@@ -24,7 +24,7 @@ InputDecoration coInputDecoration(
     fillColor: bgColor ?? Theme.of(context).primaryColor.withOpacity(0.04),
     hintText: hint,
     prefixIcon: prefixIcon != null
-        ? Icon(prefixIcon, color: Theme.of(context).primaryColor)
+        ? Icon(prefixIcon, color: Colors.blue)
         : null,
     hintStyle: secondaryTextStyle(),
     filled: true,

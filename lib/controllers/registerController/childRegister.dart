@@ -227,20 +227,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     hint: 'Entrer vos noms et prénoms',
                                     context: context,
                                     prefixIcon: Icons.person_outline,
+                                    borderColor: Colors.blue,
+
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
                                   controller: nameController,
                                   focus: nameFocusNode,
                                   nextFocus: emailFocusNode,
+                                  cursorColor: Colors.blue,
+
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre adresse mail',
-                                    context: context,
-                                    prefixIcon: Icons.mail_outline,
+                                      hint: 'Entrer votre adresse mail',
+                                      context: context,
+                                      prefixIcon: Icons.mail_outline,
+                                      borderColor: Colors.blue
                                   ),
+
                                   textFieldType: TextFieldType.EMAIL,
                                   keyboardType: TextInputType.text,
                                   controller: emailController,
@@ -258,6 +264,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   keyboardType: TextInputType.phone,
                                   controller: phoneController,
                                   focus: phoneFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 Row(
@@ -270,6 +277,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     Row(
                                       children: [
                                         Radio(
+                                          activeColor: Colors.blue,
                                           value: 'Masculin',
                                           groupValue: selectedGender,
                                           onChanged: (value) {
@@ -284,6 +292,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     Row(
                                       children: [
                                         Radio(
+                                          activeColor: Colors.blue,
                                           value: 'Féminin',
                                           groupValue: selectedGender,
                                           onChanged: (value) {
@@ -301,28 +310,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 // Ajoutez ici les autres champs de texte pour les informations requises
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre mot de passe',
-                                    context: context,
-                                    prefixIcon: Icons.lock_clock_outlined,
+                                      hint: 'Entrer votre mot de passe',
+                                      context: context,
+                                      prefixIcon: Icons.lock_clock_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.PASSWORD,
                                   keyboardType: TextInputType.visiblePassword,
                                   controller: passwordController,
                                   focus: passwordFocusNode,
                                   nextFocus: birthdateFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Confirmation de votre mot de passe',
-                                    context: context,
-                                    prefixIcon: Icons.lock_clock_outlined,
+                                      hint: 'Confirmation de votre mot de passe',
+                                      context: context,
+                                      prefixIcon: Icons.lock_clock_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.PASSWORD,
                                   keyboardType: TextInputType.visiblePassword,
                                   controller: confirmPasswordController,
                                   focus: confirmPasswordFocusNode,
                                   nextFocus: passwordFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 GestureDetector(
@@ -342,68 +355,78 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   child: AbsorbPointer(
                                     child: AppTextField(
                                       decoration: coInputDecoration(
-                                        hint: 'Choisir la date de naissance',
-                                        context: context,
-                                        prefixIcon: Icons.calendar_today,
+                                          hint: 'Choisir la date de naissance',
+                                          context: context,
+                                          prefixIcon: Icons.calendar_today,
+                                          borderColor: Colors.blue
                                       ),
                                       keyboardType: TextInputType.text,
                                       controller: birthdateController,
                                       focus: birthdateFocusNode,
                                       nextFocus: birthplaceFocusNode,
                                       textFieldType: TextFieldType.OTHER,
+                                      cursorColor: Colors.blue,
                                     ),
                                   ),
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre lieu de naissance',
-                                    context: context,
-                                    prefixIcon: Icons.place_outlined,
+                                      hint: 'Entrer votre lieu de naissance',
+                                      context: context,
+                                      prefixIcon: Icons.place_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
                                   controller: birthplaceController,
                                   focus: birthplaceFocusNode,
                                   nextFocus: streetFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
                                       hint: 'Entrer votre rue',
                                       context: context,
-                                      prefixIcon: Icons.streetview_outlined
+                                      prefixIcon: Icons.streetview_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
                                   controller: streetController,
                                   focus: streetFocusNode,
                                   nextFocus: cityFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre ville de résidence',
-                                    context: context,
-                                    prefixIcon: Icons.location_city_outlined,
+                                      hint: 'Entrer votre ville de résidence',
+                                      context: context,
+                                      prefixIcon: Icons.location_city_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
                                   controller: cityController,
                                   focus: cityFocusNode,
                                   nextFocus: countryFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 AppTextField(
                                   decoration: coInputDecoration(
-                                    hint: 'Entrer votre pays de résidence',
-                                    context: context,
-                                    prefixIcon: Icons.place_outlined,
+                                      hint: 'Entrer votre pays de résidence',
+                                      context: context,
+                                      prefixIcon: Icons.place_outlined,
+                                      borderColor: Colors.blue
                                   ),
                                   textFieldType: TextFieldType.NAME,
                                   keyboardType: TextInputType.text,
                                   controller: countryController,
                                   focus: countryFocusNode,
+                                  cursorColor: Colors.blue,
                                 ),
                                 16.height,
                                 30.height,
@@ -411,7 +434,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ? Center(child: CircularProgressIndicator())
                                     :AppButton(
                                   text: "S'inscrire",
-                                  color: Theme.of(context).primaryColor,
+                                  color: Colors.blue,
                                   textColor: Colors.white,
                                   shapeBorder: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),

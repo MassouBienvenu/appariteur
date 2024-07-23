@@ -1,15 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-
 import '../../data/apihelper.dart';
 import '../../models/fichepaie.dart';
-
 
 class FichesPaieChild extends StatefulWidget {
   @override
@@ -78,64 +74,37 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
 class ListItem extends StatelessWidget {
   final double width;
   final FichePaie fiche;
+
   Future<void> downloadFile(String url, String fileName, BuildContext context) async {
-    await requestPermissions();
-    final status = await Permission.storage.request();
+    final baseDir = await getApplicationDocumentsDirectory();
+    final localPath = baseDir.path;
 
-    if (status.isGranted) {
-      final baseDir = await getExternalStorageDirectory(); // Get the directory path
-      final localPath = baseDir!.path + '/Download';
-
-      final savedDir = Directory(localPath);
-      if (!await savedDir.exists()) {
-        await savedDir.create(recursive: true);
-      }
-
-      // Provide the savedDir parameter to the FlutterDownloader.enqueue method
-      final taskId = await FlutterDownloader.enqueue(
-        url: url,
-        savedDir: localPath, // Provide the directory path where the file will be saved
-        fileName: fileName,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-    } else if (status.isPermanentlyDenied) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Permission nécessaire'),
-          content: Text('Cette application a besoin de la permission de stockage pour télécharger des fichiers. Veuillez activer la permission dans les paramètres de l\'application.'),
-          actions: <TextButton>[
-            TextButton(
-              child: Text('Ouvrir les paramètres'),
-              onPressed: () => openAppSettings(),
-            ),
-          ],
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('La permission de stockage est nécessaire pour télécharger des fichiers.'),
-        ),
-      );
+    final savedDir = Directory(localPath);
+    if (!await savedDir.exists()) {
+      await savedDir.create(recursive: true);
     }
-  }
 
-  Future<void> requestPermissions() async {
-    if (Platform.isAndroid) {
-      var status = await Permission.storage.status;
-      if (status != PermissionStatus.granted) {
-        await Permission.storage.request();
-      }
-    } else if(Platform.isIOS) {
-      var status = await Permission.photos.status;
-      if (status != PermissionStatus.granted) {
-        await Permission.photos.request();
-      }
-    }
+    final taskId = await FileDownloader.downloadFile(
+      url: url,
+      name: fileName,
+      notificationType: NotificationType.all,
+      downloadDestination: DownloadDestinations.appFiles,
+      onDownloadCompleted: (filePath) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Téléchargement terminé avec succès. Chemin du fichier: $filePath'),
+            duration: Duration(seconds: 6),),
+        );
+      },
+      onDownloadError: (errorMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors du téléchargement: $errorMessage'),
+          ),
+        );
+      },
+    );
   }
-
 
   ListItem({required this.width, required this.fiche});
 
@@ -167,13 +136,13 @@ class ListItem extends StatelessWidget {
                     Icon(Icons.picture_as_pdf, color: Colors.redAccent),
                     SizedBox(width: 10),
                     Expanded(
-                      child: Text('${fiche.mois} ${fiche.annee}', style: Theme.of(context).textTheme.headline6),
+                      child: Text('${fiche.mois} ${fiche.annee}', style: Theme.of(context).textTheme.titleMedium),
                     ),
                     Icon(Icons.check_circle, color: Colors.green)
                   ],
                 ),
                 SizedBox(height: 10),
-                Text('Créée le: ${fiche.dateCreate}', style: Theme.of(context).textTheme.subtitle2),
+                Text('Créée le: ${fiche.dateCreate}', style: Theme.of(context).textTheme.bodyMedium),
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +152,7 @@ class ListItem extends StatelessWidget {
                         downloadFile('https://appariteur.com/admins/documents/${fiche.fichier}', fiche.fichier, context);
                       },
                       icon: Icon(Icons.download, color: Theme.of(context).primaryColor),
-                      label: Text('Télécharger', style: Theme.of(context).textTheme.bodyText1),
+                      label: Text('Télécharger', style: Theme.of(context).textTheme.bodyMedium),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -192,7 +161,7 @@ class ListItem extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Text('Voir ', style: Theme.of(context).textTheme.bodyText1),
+                        Text('Voir ', style: Theme.of(context).textTheme.bodyMedium),
                         Icon(Icons.remove_red_eye, color: Theme.of(context).primaryColor),
                       ],
                     )

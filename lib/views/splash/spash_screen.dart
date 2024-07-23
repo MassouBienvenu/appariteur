@@ -57,6 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     double _h = MediaQuery.of(context).size.height;
 
     return Container(
+      color: Colors.white,
       padding: EdgeInsets.all(_w * 0.05),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +82,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                backgroundColor: Colors.blue,
                 padding: EdgeInsets.symmetric(horizontal: _w * 0.1, vertical: _h * 0.02),
               ),
             ),

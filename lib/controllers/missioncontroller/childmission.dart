@@ -21,8 +21,7 @@ class _BodyMState extends State<BodyM> {
     return Expanded(
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          primary: Colors.blueAccent,
-          onPrimary: Colors.white,
+          foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
           padding: EdgeInsets.symmetric(vertical: _w/40),
         ),
         onPressed: () => _pickDate(context, isStart),
@@ -34,7 +33,7 @@ class _BodyMState extends State<BodyM> {
     double _w = MediaQuery.of(context).size.width;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        primary: color,
+        backgroundColor: color,
         padding: EdgeInsets.symmetric(vertical: _w/40),
       ),
       onPressed: () => onPressed(),

@@ -172,13 +172,13 @@ class ContratItem extends StatelessWidget {
                     Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: iconSize),
                     SizedBox(width: width * 0.025),
                     Expanded(
-                      child: Text('${contrat!.typeContrat} ', style: Theme.of(context).textTheme.headline6),
+                      child: Text('${contrat!.typeContrat} ', style: Theme.of(context).textTheme.titleMedium),
                     ),
                     Icon(Icons.check_circle, color: Colors.green, size: iconSize)
                   ],
                 ),
                 SizedBox(height: width * 0.025),
-                Text('Valide jusqu\'au: ${contrat.dateFinContrat}', style: Theme.of(context).textTheme.subtitle2),
+                Text('Valide jusqu\'au: ${contrat.dateFinContrat}', style: Theme.of(context).textTheme.bodyMedium),
                 SizedBox(height: width * 0.05),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +188,7 @@ class ContratItem extends StatelessWidget {
                         downloadFile('https://appariteur.com/admins/documents/${contrat.nameFichier}', contrat.nameFichier,context);
                       },
                       icon: Icon(Icons.download, color: Theme.of(context).primaryColor),
-                      label: Text('Télécharger', style: Theme.of(context).textTheme.bodyText1),
+                      label: Text('Télécharger', style: Theme.of(context).textTheme.bodyLarge),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: width * 0.02, horizontal: width * 0.04),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -197,7 +197,7 @@ class ContratItem extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Text('Voir ', style: Theme.of(context).textTheme.bodyText1),
+                        Text('Voir ', style: Theme.of(context).textTheme.bodyLarge),
                         Icon(Icons.remove_red_eye, color: Theme.of(context).primaryColor),
                       ],
                     )

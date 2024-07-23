@@ -209,7 +209,7 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                       : Text('Importer le Document', style: TextStyle(fontSize: _w / 20, color: Colors.white)),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,
+                  backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(_w / 60),
                   ),

@@ -114,21 +114,25 @@ class _SignInScreenState extends State<SignInScreen> {
                                   hint: 'Entrer votre email',
                                   context: context,
                                   prefixIcon: Icons.email_outlined,
+                                  borderColor: Colors.blue
                                 ),
                                 textFieldType: TextFieldType.EMAIL,
                                 keyboardType: TextInputType.emailAddress,
                                 controller: emailController,
                                 focus: emailFocusNode,
                                 nextFocus: passWordFocusNode,
+                                cursorColor: Colors.blue,
                               ),
                               16.height,
                               AppTextField(
                                 decoration: coInputDecoration(
+                                  borderColor: Colors.blue,
                                   context: context,
                                   hint: 'Entrer votre mot de passe',
                                   prefixIcon: Icons.lock_outline,
                                 ),
-                                suffixIconColor: Theme.of(context).primaryColor,
+                                suffixIconColor: Colors.blue,
+                                cursorColor: Colors.blue,
                                 textFieldType: TextFieldType.PASSWORD,
                                 isPassword: true,
                                 keyboardType: TextInputType.visiblePassword,
@@ -136,33 +140,33 @@ class _SignInScreenState extends State<SignInScreen> {
                                 focus: passWordFocusNode,
                               ),
                               5.height,
-                          Align(
-                            alignment: Alignment.centerRight,
-                              child:
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ResetPasswordScreen(),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child:
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ResetPasswordScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Mot de passe oublié ?',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
                                     ),
-                                  );
-                                },
-                                child: Text(
-                                  'Mot de passe oublié ?',
-                                  style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ),
-                          ),
                               10.height,
                               isLoading
                                   ? Center(child: CircularProgressIndicator())
                                   : AppButton(
                                 text: "Se connecter",
-                                color: Theme.of(context).primaryColor,
+                                color: Colors.blue,
                                 textColor: Colors.white,
                                 shapeBorder: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -194,7 +198,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => SignUpScreen()
+                                      builder: (context) => SignUpScreen()
                                   ),
                                 );
                               }).center(),
