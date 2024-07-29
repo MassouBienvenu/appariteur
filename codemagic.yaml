@@ -1,16 +1,16 @@
 workflows:
-  default-workflow:
-    name: Workflow Name
+  ios-workflow:
+    name: iOS Workflow
     instance_type: mac_mini_m1
-    max_build_duration:  60
+    max_build_duration: 60
     environment:
       flutter: stable
       xcode: latest
     scripts:
       - flutter pub get
-      - flutter build ipa --release
+      - flutter build ios --release --no-codesign
     artifacts:
-      - build/app/outputs/flutter-ipa/app-release.ipa
+      - build/ios/ipa/*.ipa
     triggering:
       events:
         - push
@@ -23,4 +23,3 @@ workflows:
           include: false
         - pattern: release/*
           include: true
-
