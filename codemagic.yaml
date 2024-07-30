@@ -1,19 +1,32 @@
-scripts:
-  - name: Set up code signing settings on Xcode project
-    script: |
-      xcode-project use-profiles
-  - name: Get Flutter packages
-    script: |
-      flutter packages pub get
-  - name: Install pods
-    script: |
-      find . -name "Podfile" -execdir pod install \;
-  - name: Flutter build ipa
-    script: |
-      flutter build ipa --release \
-        --build-name=1.0.0 \
-        --export-options-plist=/Users/builder/export_options.plist
-artifacts:
-  - build/ios/ipa/*.ipa
-  - /tmp/xcodebuild_logs/*.log
-  - flutter_drive.log
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    integrations:
+      app_store_connect: NomDeVotreIntegration
+    environment:
+      ios_signing:
+        provisioning_profiles:
+          - NomDeVotreProvisioningProfile
+        certificates:
+          - NomDeVotreCertificat
+      vars:
+        BUNDLE_ID: "com.h24consulting.appariteur"
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Get Flutter packages
+        script: |
+          flutter packages pub get
+      - name: Install pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Flutter build ipa
+        script: |
+          flutter build ipa --release \
+            --build-name=1.0.0 \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
