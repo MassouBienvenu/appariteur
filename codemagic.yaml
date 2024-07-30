@@ -10,7 +10,7 @@ workflows:
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"  # Remplacez par le nom de votre workspace si différent
         XCODE_SCHEME: "Runner"  # Remplacez par le nom de votre scheme si différent
-        BUNDLE_ID: "com.h24consult.appariteur"  # Remplacez par votre Bundle ID
+        BUNDLE_ID: "com.h24consult.*"  # Remplacez par votre Bundle ID
       ios_signing:
         distribution_type: development
         bundle_identifier: ${BUNDLE_ID}
