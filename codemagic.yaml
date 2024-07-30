@@ -1,16 +1,10 @@
 workflows:
   ios-workflow:
     name: iOS Workflow
-    integrations:
-      app_store_connect: NomDeVotreIntegration
     environment:
-      ios_signing:
-        provisioning_profiles:
-          - NomDeVotreProvisioningProfile
-        certificates:
-          - NomDeVotreCertificat
-      vars:
-        BUNDLE_ID: "com.h24consulting.appariteur"
+      xcode: latest
+      cocoapods: default
+      flutter: stable
     scripts:
       - name: Set up code signing settings on Xcode project
         script: |
@@ -30,3 +24,7 @@ workflows:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - user@example.com
