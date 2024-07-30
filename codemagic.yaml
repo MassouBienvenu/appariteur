@@ -2,6 +2,8 @@ workflows:
   ios-workflow:
     name: iOS Workflow
     environment:
+      groups:
+        - Apple Credentials
       xcode: latest
       cocoapods: default
       flutter: stable
