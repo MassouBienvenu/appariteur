@@ -11,9 +11,7 @@ workflows:
         XCODE_WORKSPACE: "Runner.xcworkspace"  # Remplacez par le nom de votre workspace si différent
         XCODE_SCHEME: "Runner"  # Remplacez par le nom de votre scheme si différent
         BUNDLE_ID: "com.h24consulting.appariteur"  # Remplacez par votre Bundle ID
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: ${BUNDLE_ID}
+
     scripts:
       - name: Get Flutter packages
         script: |
