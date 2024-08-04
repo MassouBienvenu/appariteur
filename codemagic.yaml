@@ -21,4 +21,4 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Flutter run
         script: |
-          flutter run --release 
+          flutter run -d macos --release 
