@@ -22,5 +22,6 @@ workflows:
       - name: Flutter run
         script: |
           flutter run -d D3F41A76-A956-4F9B-8874-99974B22C923 
+          xcrun simctl launch <D3F41A76-A956-4F9B-8874-99974B22C923> com.h24consulting.appariteur
 
 
