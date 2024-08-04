@@ -19,17 +19,21 @@ workflows:
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
-      - name: Build iOS app
+      - name: Launch iOS Simulator and Run App
         script: |
-          flutter build ios --release
-      - name: Launch iOS Simulator and Capture Logs
-        script: |
-          # Lancer l'application sur le simulateur
+          # Lancer le simulateur et attendre qu'il soit prêt
           xcrun simctl boot D3F41A76-A956-4F9B-8874-99974B22C923
-          xcrun simctl install D3F41A76-A956-4F9B-8874-99974B22C923 build/ios/iphoneos/Runner.app
+          xcrun simctl shutdown D3F41A76-A956-4F9B-8874-99974B22C923 || true
+          xcrun simctl boot D3F41A76-A956-4F9B-8874-99974B22C923
+          
+          # Installer l'application sur le simulateur
+          xcrun simctl install D3F41A76-A956-4F9B-8874-99974B22C923 build/ios/iphonesimulator/Runner.app
+          
+          # Lancer l'application sur le simulateur
           xcrun simctl launch D3F41A76-A956-4F9B-8874-99974B22C923 com.h24consulting.appariteur
 
           # Capturer les logs du simulateur
           xcrun simctl spawn D3F41A76-A956-4F9B-8874-99974B22C923 log collect --output /tmp/simulator_logs.log
           
-        
+          # Optionnel : Télécharger les logs
+          curl -F "file=@/tmp/simulator_logs.log" https://your-log-upload-server.com/upload
