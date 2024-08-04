@@ -19,8 +19,17 @@ workflows:
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
-      - name: Flutter run
+      - name: Build iOS app
         script: |
-          flutter run -d D3F41A76-A956-4F9B-8874-99974B22C923 
+          flutter build ios --release
+      - name: Launch iOS Simulator and Capture Logs
+        script: |
+          # Lancer l'application sur le simulateur
+          xcrun simctl boot D3F41A76-A956-4F9B-8874-99974B22C923
+          xcrun simctl install D3F41A76-A956-4F9B-8874-99974B22C923 build/ios/iphoneos/Runner.app
+          xcrun simctl launch D3F41A76-A956-4F9B-8874-99974B22C923 com.h24consulting.appariteur
 
-
+          # Capturer les logs du simulateur
+          xcrun simctl spawn D3F41A76-A956-4F9B-8874-99974B22C923 log collect --output /tmp/simulator_logs.log
+          
+        
