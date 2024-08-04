@@ -21,4 +21,4 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Flutter run
         script: |
-          flutter run -d apple_ios_simulator --release 
+          flutter run -d iPhone 15 Pro Max --release 
