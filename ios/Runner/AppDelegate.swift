@@ -15,7 +15,9 @@ import flutter_downloader
 }
 
 private func registerPlugins(registry: FlutterPluginRegistry) {
-    if (!registry.hasPlugin("FlutterDownloaderPlugin")) {
-       FlutterDownloaderPlugin.register(with: registry.registrar(forPlugin: "FlutterDownloaderPlugin"))
+    if !registry.hasPlugin("FlutterDownloaderPlugin") {
+        if let registrar = registry.registrar(forPlugin: "FlutterDownloaderPlugin") {
+            FlutterDownloaderPlugin.register(with: registrar)
+        }
     }
 }
