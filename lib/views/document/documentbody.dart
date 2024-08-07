@@ -131,6 +131,7 @@ class _DocumentShildState extends State<DocumentShild> {
           MaterialPageRoute(builder: (context) =>  DocumentUploadPage()),
         );}),
         appBar: TopBarS(
+          showBackButton: true,
           onNotificationPressed: () {
             Navigator.push(
               context,

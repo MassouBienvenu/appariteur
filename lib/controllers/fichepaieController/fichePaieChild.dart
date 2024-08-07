@@ -76,34 +76,31 @@ class ListItem extends StatelessWidget {
   final FichePaie fiche;
 
   Future<void> downloadFile(String url, String fileName, BuildContext context) async {
-    final baseDir = await getApplicationDocumentsDirectory();
-    final localPath = baseDir.path;
+    final directory = await getApplicationDocumentsDirectory();
 
-    final savedDir = Directory(localPath);
-    if (!await savedDir.exists()) {
-      await savedDir.create(recursive: true);
+
+    try {
+      await FileDownloader.downloadFile(
+        url: url,
+        name: fileName,
+        notificationType: NotificationType.all,
+        downloadDestination: DownloadDestinations.appFiles,
+        onDownloadCompleted: (String path) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Téléchargement terminé avec succès. Fichier sauvegardé dans : $path'),
+              duration: Duration(seconds: 6),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors du téléchargement: $e'),
+        ),
+      );
     }
-
-    final taskId = await FileDownloader.downloadFile(
-      url: url,
-      name: fileName,
-      notificationType: NotificationType.all,
-      downloadDestination: DownloadDestinations.appFiles,
-      onDownloadCompleted: (filePath) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Téléchargement terminé avec succès. Chemin du fichier: $filePath'),
-            duration: Duration(seconds: 6),),
-        );
-      },
-      onDownloadError: (errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors du téléchargement: $errorMessage'),
-          ),
-        );
-      },
-    );
   }
 
   ListItem({required this.width, required this.fiche});

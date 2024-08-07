@@ -11,11 +11,12 @@ class ContratVue extends StatelessWidget {
 
     return Scaffold(
       appBar: TopBarS(
+        showBackButton: true,
         onNotificationPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => NotifScreen()));
         },
-        PageName: "Contrats", // Pass the page name here
+        PageName: "Contrats",
       ),
       backgroundColor: Colors.grey,
       body: ContratChild(),

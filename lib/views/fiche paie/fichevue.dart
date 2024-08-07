@@ -12,6 +12,7 @@ class FicheVue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TopBarS(
+        showBackButton: true,
         onNotificationPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => NotifScreen()));
