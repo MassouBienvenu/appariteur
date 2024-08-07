@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           flutter upgrade
-          flutter pub get
+          flutter pub upgrade
           cd ios
           pod install
 
