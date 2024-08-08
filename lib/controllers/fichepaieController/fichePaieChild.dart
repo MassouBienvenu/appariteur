@@ -6,7 +6,7 @@ import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../data/apihelper.dart';
 import '../../models/fichepaie.dart';
-
+import 'package:flutter_downloader/flutter_downloader.dart';
 class FichesPaieChild extends StatefulWidget {
   @override
   _FichesPaieChildState createState() => _FichesPaieChildState();
@@ -22,6 +22,8 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
   }
 
   Future<void> loadFichesPaie() async {
+    FlutterDownloader.initialize(
+    );
     final loadedFichesPaie = await AuthApi.getFichesPaie();
     setState(() {
       fichesPaie = loadedFichesPaie;
@@ -77,31 +79,44 @@ class ListItem extends StatelessWidget {
 
   Future<void> downloadFile(String url, String fileName, BuildContext context) async {
     final directory = await getApplicationDocumentsDirectory();
+    final savePath = '${directory.path}/$fileName';
 
     try {
-      await FileDownloader.downloadFile(
-        url: url,
-        name: fileName,
-        notificationType: Platform.isIOS ? NotificationType.all : NotificationType.all,
-        downloadDestination: Platform.isIOS ? DownloadDestinations.appFiles:DownloadDestinations.publicDownloads,
-        onDownloadCompleted: (String path) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Téléchargement terminé avec succès. Fichier sauvegardé dans : $path'),
-              duration: Duration(seconds: 6),
-            ),
-          );
-
-          if (Platform.isIOS) {
-
+      if (Platform.isAndroid) {
+        await FileDownloader.downloadFile(
+          url: url,
+          name: fileName,
+          notificationType: NotificationType.all,
+          downloadDestination: DownloadDestinations.publicDownloads,
+          onDownloadCompleted: (String path) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Fichier "$fileName" téléchargé avec succès dans : $path.'),
+                content: Text('Téléchargement terminé avec succès. Fichier sauvegardé dans : $path'),
+                duration: Duration(seconds: 6),
+              ),
+            );
+          },
+        );
+      } else if (Platform.isIOS) {
+        final taskId = await FlutterDownloader.enqueue(
+          url: url,
+          savedDir: directory.path,
+          fileName: fileName,
+          showNotification: true,
+          openFileFromNotification: true,
+        );
+
+        // S'assurer que le fichier est bien téléchargé
+        FlutterDownloader.registerCallback((id, status, progress) {
+          if (id == taskId && status == DownloadTaskStatus.complete) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Fichier "$fileName" téléchargé avec succès dans : $savePath.'),
               ),
             );
           }
-        },
-      );
+        });
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -110,6 +125,7 @@ class ListItem extends StatelessWidget {
       );
     }
   }
+
 
   ListItem({required this.width, required this.fiche});
 
