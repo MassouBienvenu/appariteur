@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -98,17 +99,9 @@ class ListItem extends StatelessWidget {
           },
         );
       } else if (Platform.isIOS) {
-        final taskId = await FlutterDownloader.enqueue(
-          url: url,
-          savedDir: directory.path,
-          fileName: fileName,
-          showNotification: true,
-          openFileFromNotification: true,
-        );
-
-        // S'assurer que le fichier est bien téléchargé
-        FlutterDownloader.registerCallback((id, status, progress) {
-          if (id == taskId && status == DownloadTaskStatus.complete) {
+        Dio dio = Dio();
+        await dio.download(url, savePath, onReceiveProgress: (received, total) {
+          if (received == total) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Fichier "$fileName" téléchargé avec succès dans : $savePath.'),
