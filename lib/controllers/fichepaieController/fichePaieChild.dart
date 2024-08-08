@@ -78,13 +78,12 @@ class ListItem extends StatelessWidget {
   Future<void> downloadFile(String url, String fileName, BuildContext context) async {
     final directory = await getApplicationDocumentsDirectory();
 
-
     try {
       await FileDownloader.downloadFile(
         url: url,
         name: fileName,
-        notificationType: NotificationType.all,
-        downloadDestination: DownloadDestinations.appFiles,
+        notificationType: Platform.isIOS ? NotificationType.all : NotificationType.all,
+        downloadDestination: Platform.isIOS ? DownloadDestinations.appFiles:DownloadDestinations.publicDownloads,
         onDownloadCompleted: (String path) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -92,6 +91,15 @@ class ListItem extends StatelessWidget {
               duration: Duration(seconds: 6),
             ),
           );
+
+          if (Platform.isIOS) {
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Fichier "$fileName" téléchargé avec succès dans : $path.'),
+              ),
+            );
+          }
         },
       );
     } catch (e) {

@@ -163,7 +163,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               ),
                               10.height,
                               isLoading
-                                  ? Center(child: CircularProgressIndicator())
+                                  ? Center(child: CircularProgressIndicator(color: Colors.blue,))
                                   : AppButton(
                                 text: "Se connecter",
                                 color: Colors.blue,
