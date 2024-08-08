@@ -50,7 +50,7 @@
       <string>fetch</string>
       <string>processing</string>
     </array>
-
-
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Cette application nécessite l'accès au dossier Documents pour enregistrer des fichiers PDF téléchargés.</string>
 </dict>
 </plist>
