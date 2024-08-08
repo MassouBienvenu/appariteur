@@ -1,5 +1,6 @@
 import 'package:appariteur/controllers/profile/profileimg.dart';
 import 'package:appariteur/controllers/profile/profileimgedit.dart';
+import 'package:appariteur/views/widgets/addonglobal/topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user.dart';
@@ -96,32 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     ShowUserData();
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
-        title: const Center(
-          child: Text(
-            "Mon compte",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-            },
-          ),
-        ],
-      ),
+      appBar: TopBarS(onNotificationPressed: (){}, PageName: "Mon compte", showBackButton: true,),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(_w / 30),

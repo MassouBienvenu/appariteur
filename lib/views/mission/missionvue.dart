@@ -12,6 +12,7 @@ class MissionScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: TopBarS(
+        showBackButton: false,
         onNotificationPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => NotifScreen()));

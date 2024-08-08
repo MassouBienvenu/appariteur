@@ -40,6 +40,7 @@ class TopBarS extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
         ),
+        automaticallyImplyLeading: false, // Désactive le bouton de retour par défaut
         leading: showBackButton
             ? IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
@@ -47,12 +48,12 @@ class TopBarS extends StatelessWidget implements PreferredSizeWidget {
             Navigator.of(context).pop();
           },
         )
-            : null, // Bouton de retour personnalisé
+            : null,
         actions: <Widget>[
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications,color: Colors.white),
+                icon: const Icon(Icons.notifications, color: Colors.white),
                 onPressed: onNotificationPressed,
               ),
               if (_notificationCount > 0)

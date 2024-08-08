@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:appariteur/controllers/loginController/childlogin.dart';
+import 'package:appariteur/views/widgets/addonglobal/topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -160,15 +161,7 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Center(child: Text("Modifier le Profil", style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),),
-        )
-      ),
+      appBar: TopBarS(onNotificationPressed: (){}, PageName: "Modifier le profil",showBackButton: true,),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),

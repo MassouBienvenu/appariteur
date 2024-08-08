@@ -22,7 +22,7 @@ class MyBottomNavState extends State<MyBottomNav> {
   void initState() {
     super.initState();
     // Initialiser la couleur de fond en fonction de la première page.
-    _backgroundColor = Colors.grey;
+    _backgroundColor = Colors.grey[200];
   }
 
   @override
@@ -58,19 +58,19 @@ class MyBottomNavState extends State<MyBottomNav> {
   void _updateBackgroundColor() {
     switch (_currentIndex) {
       case 0:
-        _backgroundColor = Colors.grey;
+        _backgroundColor = Colors.grey[200];
         break;
       case 1:
-        _backgroundColor = Colors.grey;
+        _backgroundColor = Colors.grey[200];
         break;
       case 2:
-        _backgroundColor = Colors.grey;
+        _backgroundColor = Colors.grey[200];
         break;
       case 3:
         _backgroundColor = Colors.blue;
         break;
       default:
-        _backgroundColor = Colors.grey;
+        _backgroundColor = Colors.grey[200];
         break;
     }
   }

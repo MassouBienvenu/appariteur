@@ -13,6 +13,7 @@ class PlanningScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TopBarS(
+        showBackButton: false,
         onNotificationPressed: () {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => NotifScreen()));
