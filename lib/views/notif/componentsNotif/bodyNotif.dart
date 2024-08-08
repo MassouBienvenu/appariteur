@@ -18,7 +18,7 @@ class _BodyNotifState extends State<BodyNotif> {
         .notificationCount; // Use the getter method to get the notification count
     print(itemCount);
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.white,
       body: itemCount == 0
           ? const Center(
               // Display message in the center of the page
