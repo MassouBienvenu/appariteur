@@ -11,7 +11,6 @@ import '../../data/apihelper.dart';
 import '../../main.dart';
 import '../../models/fichepaie.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FichesPaieChild extends StatefulWidget {
   @override
@@ -35,7 +34,7 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
     const DarwinInitializationSettings initializationSettingsIOS =
     DarwinInitializationSettings();
     const InitializationSettings initializationSettings =
-    InitializationSettings( android: initializationSettingsAndroid,iOS: initializationSettingsIOS);
+    InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
 
     flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -45,8 +44,11 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
 
   void _onDidReceiveNotificationResponse(NotificationResponse response) {
     final String? payload = response.payload;
+    print("Notification payload received: $payload");
     if (payload != null) {
-      OpenFile.open(payload);
+      print("Attempting to open file at: $payload");
+      final result = OpenFile.open(payload);
+      result.then((value) => print("OpenFile result: ${value.message}"));
     }
   }
 
@@ -57,8 +59,6 @@ class _FichesPaieChildState extends State<FichesPaieChild> {
       fichesPaie = loadedFichesPaie;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +109,7 @@ class ListItem extends StatelessWidget {
 
   ListItem({required this.width, required this.fiche});
 
-  Future<void> downloadFile(
-      String url, String fileName, BuildContext context) async {
+  Future<void> downloadFile(String url, String fileName, BuildContext context) async {
     final directory = await getApplicationDocumentsDirectory();
     final savePath = '${directory.path}/$fileName';
 
@@ -122,25 +121,26 @@ class ListItem extends StatelessWidget {
           notificationType: NotificationType.all,
           downloadDestination: DownloadDestinations.publicDownloads,
           onDownloadCompleted: (String path) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                    'Téléchargement terminé avec succès. Fichier sauvegardé dans : $path'),
-                duration: Duration(seconds: 6),
-              ),
-            );
+            print("File downloaded to: $path");
           },
         );
       } else if (Platform.isIOS) {
         Dio dio = Dio();
         await dio.download(url, savePath, onReceiveProgress: (received, total) {
           if (received == total) {
+            print("File downloaded to: $savePath");
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 showCloseIcon: true,
-                  duration: Duration(seconds: 8),
-                content: Text(
-                    'Fichier "$fileName" téléchargé avec succès dans : $savePath.'),
+                duration: Duration(seconds: 8),
+                content: Text('Fichier "$fileName" téléchargé avec succès dans : $savePath.'),
+                action: SnackBarAction(
+                  label: 'Ouvrir',
+                  onPressed: () {
+                    print("Attempting to open file at: $savePath");
+                    OpenFile.open(savePath).then((value) => print("OpenFile result: ${value.message}"));
+                  },
+                ),
               ),
             );
             _showDownloadNotification(fileName, savePath);
@@ -148,6 +148,7 @@ class ListItem extends StatelessWidget {
         });
       }
     } catch (e) {
+      print("Error during file download: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erreur lors du téléchargement: $e'),

@@ -49,17 +49,13 @@
     <array>
         <string>fetch</string>
         <string>processing</string>
-        <string>remote-notification</string> <!-- Ajout de remote-notification -->
+        <string>remote-notification</string>
     </array>
     <key>NSDocumentsFolderUsageDescription</key>
     <string>Cette application nécessite l'accès au dossier Documents pour enregistrer des fichiers PDF téléchargés.</string>
-    <key>NSUserNotificationAlertStyle</key> <!-- Clé pour les notifications locales -->
-    <string>alert</string>
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>fetch</string>
-        <string>processing</string>
-        <string>remote-notification</string>
-    </array>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Cette application nécessite l'accès à la photothèque pour ouvrir les fichiers PDF.</string>
+    <key>NSFileProviderUsageDescription</key>
+    <string>Cette application nécessite l'accès aux fichiers pour ouvrir les fichiers PDF téléchargés.</string>
 </dict>
 </plist>
